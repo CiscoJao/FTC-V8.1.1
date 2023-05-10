@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
-@TeleOp(name="Contour detection testing")
+@TeleOp(name="Francisco Testing")
 public class Testing extends LinearOpMode {
 
     private CameraSubsystem camera;
@@ -26,7 +25,7 @@ public class Testing extends LinearOpMode {
             turret.turn(gamepad1.right_stick_x);
 
             telemetry.addData("Right stick x", gamepad1.right_stick_x);
-            telemetry.addData("Processing time (ms)", camera.getPipeline().getProcessTime());
+            telemetry.addData("Processing time (ms)", camera.getContourPipeline().getProcessTime());
             telemetry.update();
         }
     }

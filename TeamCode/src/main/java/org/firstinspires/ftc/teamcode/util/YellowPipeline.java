@@ -11,11 +11,12 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 /*
-AVERAGE PROCESSING TIME: 60-80 ms
-This pipeline is designed to filter out the yellow poles and detect their edges.
+AVERAGE PROCESSING TIME:
+This pipeline is designed to filter out the yellow pole and replace the background with black
 Created by Francisco Jao
+Based on the pipeline made by Shiv
  */
-public class ContourPipeline extends OpenCvPipeline {
+public class YellowPipeline extends OpenCvPipeline {
 
     // for tracking pipeline processing speed
     private ElapsedTime timer = new ElapsedTime();
@@ -29,9 +30,6 @@ public class ContourPipeline extends OpenCvPipeline {
     private final Scalar WHITE = new Scalar(255, 255, 255);
     private final Scalar UPPER_HSV = new Scalar(30, 255, 255);
     private final Scalar LOWER_HSV = new Scalar(10, 130, 130);
-    private final double LOWER_HYSTERESIS = 1.0;
-    private final double UPPER_HYSTERESIS = 2.0;
-    private final int APERTURE = 3;
 
     // MATRICES
     Mat leftSub = new Mat();
@@ -42,11 +40,11 @@ public class ContourPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
 
-        // blurring the input image to improve edge detection
+        // blurring the input image to improve colour detection
         Mat blur = new Mat();
         Imgproc.blur(input, blur, KERNEL);
 
-        // convert blurred image into HSV scale
+        // convert blurred image into HSV scale (Hue, Saturation, Brightness Value)
         Mat hsv = new Mat();
         Imgproc.cvtColor(blur, hsv, Imgproc.COLOR_RGB2HSV);
 
@@ -54,12 +52,12 @@ public class ContourPipeline extends OpenCvPipeline {
         Mat threshold = new Mat();
         Core.inRange(hsv, LOWER_HSV, UPPER_HSV, threshold);
 
-        // perform Canny edge detection algorithm on the threshold binary image
-        // this will create neat contour lines around the poles
-        Mat edges = new Mat();
-        Imgproc.Canny(threshold, edges, UPPER_HYSTERESIS, LOWER_HYSTERESIS, APERTURE);
+        // use the threshold image as a mask to filter out all the yellow in the original
+        Mat masked = new Mat();
+        Core.bitwise_and(hsv, hsv, masked, threshold);
 
-        edges.copyTo(output);
+        // convert the now isolated yellow pole image back into RGB
+        Imgproc.cvtColor(masked, output, Imgproc.COLOR_HSV2RGB);
 
         // drawing three rectangles on camera feed
         Imgproc.rectangle(output, RIGHT_RECT, WHITE, 1);
@@ -70,7 +68,7 @@ public class ContourPipeline extends OpenCvPipeline {
         blur.release();
         hsv.release();
         threshold.release();
-        edges.release();
+        masked.release();
 
         // tracking pipeline speed
         processTime = timer.milliseconds();
