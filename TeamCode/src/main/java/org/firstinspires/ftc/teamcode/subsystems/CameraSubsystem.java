@@ -48,7 +48,7 @@ public class CameraSubsystem {
         });
     }
 
-    public ContourPipeline getContourPipeline() {
+    public ContourPipeline getPipeline() {
         return contourPipeline;
     }
 }
