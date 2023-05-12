@@ -19,7 +19,10 @@ import java.util.Collections;
 import java.util.List;
 
 /*
-AVERAGE PROCESSING TIME: 60-80 ms
+AVERAGE PROCESSING TIMES:
+320x176 30 ms
+800x448 60-80 ms
+1280x960 220 ms
 This pipeline is designed to filter out the yellow poles and detect their edges.
 Additionally, the pipeline also finds the areas and their center of masses of the detected
 yellow shapes.
@@ -109,7 +112,7 @@ public class ContourPipeline extends OpenCvPipeline {
             findLargestContourCenter(contours);
         }
 
-        draw.copyTo(output);
+        input.copyTo(output);
 
         // drawing three rectangles on camera feed
 //        Imgproc.rectangle(output, RIGHT_RECT, WHITE, 1);

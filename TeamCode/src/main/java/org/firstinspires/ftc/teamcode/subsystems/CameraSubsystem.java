@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.vuforia.VIEW;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.ContourPipeline;
@@ -14,6 +15,9 @@ public class CameraSubsystem {
     private ContourPipeline contourPipeline; // pipeline designed to look for contours of the poles
     private YellowPipeline yellowPipeline; // pipeline designed to filter out the yellow pole
     int cameraMonitorViewId; // ID of the viewport which camera feed will be displayed
+
+    public static final int VIEW_WIDTH = 320;
+    public static final int VIEW_HEIGHT = 176;
 
     public CameraSubsystem(HardwareMap hardwareMap){
 
@@ -37,7 +41,7 @@ public class CameraSubsystem {
             public void onOpened()
             {
                 // starts the camera stream when init is pressed
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(VIEW_WIDTH,VIEW_HEIGHT, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
