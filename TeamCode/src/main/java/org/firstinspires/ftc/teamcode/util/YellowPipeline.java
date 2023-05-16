@@ -31,10 +31,7 @@ public class YellowPipeline extends OpenCvPipeline {
     private final Scalar UPPER_HSV = new Scalar(30, 255, 255);
     private final Scalar LOWER_HSV = new Scalar(10, 130, 130);
 
-    // MATRICES
-    Mat leftSub = new Mat();
-    Mat middleSub = new Mat();
-    Mat rightSub = new Mat();
+    // final output image
     Mat output = new Mat();
 
     @Override

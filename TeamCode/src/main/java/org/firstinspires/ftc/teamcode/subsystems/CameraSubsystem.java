@@ -13,7 +13,6 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 public class CameraSubsystem {
     public OpenCvCamera camera;
     private ContourPipeline contourPipeline; // pipeline designed to look for contours of the poles
-    private YellowPipeline yellowPipeline; // pipeline designed to filter out the yellow pole
     int cameraMonitorViewId; // ID of the viewport which camera feed will be displayed
 
     public static final int VIEW_WIDTH = 320;
@@ -22,7 +21,6 @@ public class CameraSubsystem {
     public CameraSubsystem(HardwareMap hardwareMap){
 
         contourPipeline = new ContourPipeline();
-        yellowPipeline = new YellowPipeline();
 
         // initiate the needed parameters
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId","id",hardwareMap.appContext.getPackageName());
@@ -33,7 +31,6 @@ public class CameraSubsystem {
 
         // connect whichever pipeline is desired and comment the other one
         camera.setPipeline(contourPipeline);
-        //camera.setPipeline(yellowPipeline);
 
         // runs camera on a separate thread so it can run simultaneously with everything else
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener(){

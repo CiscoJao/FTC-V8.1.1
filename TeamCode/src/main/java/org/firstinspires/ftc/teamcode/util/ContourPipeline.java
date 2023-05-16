@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -23,9 +23,13 @@ AVERAGE PROCESSING TIMES:
 320x176 30 ms
 800x448 60-80 ms
 1280x960 220 ms
+
 This pipeline is designed to filter out the yellow poles and detect their edges.
 Additionally, the pipeline also finds the areas and their center of masses of the detected
 yellow shapes.
+Once this information is found, the pipeline regularly updates which contour it thinks is the largest,
+in other words, which pole is deemed as the "closest"
+
 Created by Francisco Jao
  */
 public class ContourPipeline extends OpenCvPipeline {
@@ -35,27 +39,20 @@ public class ContourPipeline extends OpenCvPipeline {
     private double processTime = 0;
 
     // constants
-    private final Rect LEFT_RECT = new Rect(1, 1, 300, 447);
-    private final Rect MID_RECT = new Rect(301, 1, 500, 447);
-    private final Rect RIGHT_RECT = new Rect(501, 1, 799, 447);
+    public static final int CENTER_X = CameraSubsystem.VIEW_WIDTH / 2;
+    public static final int CENTER_Y = CameraSubsystem.VIEW_HEIGHT / 2;
     private final Size KERNEL = new Size(20, 20);
     private final Scalar WHITE = new Scalar(255, 255, 255);
     private final Scalar CONTOUR_COLOR = new Scalar(0, 255, 255);
     private final Scalar CONTOUR_CENTER_COLOUR = new Scalar(255,0,255);
     private final Scalar UPPER_HSV = new Scalar(30, 255, 255);
     private final Scalar LOWER_HSV = new Scalar(10, 130, 130);
-    private final double LOWER_HYSTERESIS = 1.0;
-    private final double UPPER_HYSTERESIS = 2.0;
-    private final int APERTURE = 3;
 
-    // MATRICES
-    Mat leftSub = new Mat();
-    Mat middleSub = new Mat();
-    Mat rightSub = new Mat();
+    // final output image
     Mat output = new Mat();
 
     // for contour detection
-    private List<Double> contourAreas = new ArrayList<>(); // records contour areas in pixels
+    private List<Double> contourAreas = new ArrayList<>(); // records contour areas with pixels as the unit
     private double largestContourArea = 0;
     private Point largestContourCenter = new Point(0, 0);
 
@@ -74,19 +71,14 @@ public class ContourPipeline extends OpenCvPipeline {
         Mat threshold = new Mat();
         Core.inRange(hsv, LOWER_HSV, UPPER_HSV, threshold);
 
-        // perform Canny edge detection algorithm on the threshold binary image
-        // this will create neat lines around the poles
-        Mat edges = new Mat();
-        Imgproc.Canny(threshold, edges, UPPER_HYSTERESIS, LOWER_HYSTERESIS, APERTURE);
-
-        // finding contours (different from Canny Edge detection)
+        // finding contours
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         // RETR_EXTERNAL means to retrieve only the external contours
         // CHAIN_APPROX_SIMPLE means to compress horizontal, vertical, and diagonal segments and only leaves their endpoints
         Imgproc.findContours(threshold, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        // set up output image where contours will be drawn on (for testing)
+        // set up output image where contours will be drawn on (creates a pure black image)
         Mat draw = Mat.zeros(threshold.size(), CvType.CV_8UC3);
 
         // record all of the contour areas found in a list
@@ -112,18 +104,15 @@ public class ContourPipeline extends OpenCvPipeline {
             findLargestContourCenter(contours);
         }
 
-        input.copyTo(output);
+        // drawing the center x coordinate for testing
+        Imgproc.drawMarker(draw, new Point(CENTER_X, CENTER_Y), WHITE);
 
-        // drawing three rectangles on camera feed
-//        Imgproc.rectangle(output, RIGHT_RECT, WHITE, 1);
-//        Imgproc.rectangle(output, MID_RECT, WHITE, 1);
-//        Imgproc.rectangle(output, LEFT_RECT, WHITE, 1);
+        draw.copyTo(output);
 
-        // deallocating matrix memory
+        // deallocating matrix memory to prevent memory leaks
         blur.release();
         hsv.release();
         threshold.release();
-        edges.release();
         hierarchy.release();
         draw.release();
 
