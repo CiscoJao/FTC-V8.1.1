@@ -29,10 +29,7 @@ public class TurretSubsystem {
         CCWLimit = hardwareMap.get(TouchSensor.class, "ccwlimit");
 
         // this PID controller is tuned for following the yellow poles
-        followPID = new PIDController(0.002, 0.00, 0.00001);
-
-        // this PID controller is tuned for moving the turret in 90 degree turns
-        // todo add PID controller
+        followPID = new PIDController(0.002, 0, 0.00001);
     }
 
     // general turn method that turns by a power

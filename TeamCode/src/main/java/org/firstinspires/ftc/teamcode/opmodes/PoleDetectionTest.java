@@ -2,24 +2,25 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IMUSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.ContourPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name="Francisco Testing")
-public class Testing extends LinearOpMode {
+@TeleOp(name="Pole Detection Testing")
+public class PoleDetectionTest extends LinearOpMode {
 
     private CameraSubsystem camera;
     private TurretSubsystem turret;
+    private MecanumDriveSubsystem drive;
     private int targetPos;
 
     // todo delete later
@@ -30,6 +31,7 @@ public class Testing extends LinearOpMode {
 
         camera = new CameraSubsystem(hardwareMap);
         turret = new TurretSubsystem(hardwareMap);
+        drive = new MecanumDriveSubsystem(hardwareMap);
 
         // outputting values to FTCDashboard for debugging
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -48,17 +50,15 @@ public class Testing extends LinearOpMode {
 
         while (opModeIsActive()) {
             timer.reset(); // todo delete later
-            sleep(20); // todo delet later
 
             // user controls
             if (gamepad1.right_trigger > 0) {
                 turret.turn(gamepad1.right_trigger);
             } else if (gamepad1.left_trigger > 0) {
                 turret.turn(-gamepad1.left_trigger);
-            } else {
-                //turret.stop();
-                //turret.turnPID(turret.getPosition(), targetPos);
             }
+
+            drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
             // manually raise or lower target position (for testing), maybe delete later
             stateA = gamepad1.a;
@@ -76,14 +76,16 @@ public class Testing extends LinearOpMode {
             lastStateB = stateB;
 
             // reporting turret data
+            telemetry.addLine("TURRET DATA");
             telemetry.addData("Clock wise limit", turret.clockWiseLimit());
             telemetry.addData("Counter clock wise limit", turret.counterClockWiseLimit());
             telemetry.addData("Turret motor power", turret.getMotorPower());
             telemetry.addData("Turret position", turret.getPosition());
-            telemetry.addData("Target position", targetPos);
+            telemetry.addData("Target position (NOT USED ANYMORE)", targetPos);
             telemetry.addLine();
 
             // reporting the pole detection and contour data
+            telemetry.addLine("CAMERA DATA");
             if (camera.getPipeline().poleDetected()) {
                 // NOTE temporary list was created to prevent this OpMode thread to interfere with the Pipeline thread
                 List<Double> tmp = new ArrayList<>(camera.getPipeline().getContourAreas());
