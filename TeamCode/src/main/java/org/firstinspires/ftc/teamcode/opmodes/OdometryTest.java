@@ -1,19 +1,22 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import org.firstinspires.ftc.teamcode.subsystems.OdometrySubsystem;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.subsystems.Odo;
 import org.firstinspires.ftc.teamcode.threadopmode.TaskThread;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
+@TeleOp(name="Odo Test")
 public class OdometryTest extends ThreadOpMode {
 
-    private OdometrySubsystem odo;
+    private Odo odo;
 
     @Override
     public void mainInit() {
 
-        odo = new OdometrySubsystem(hardwareMap);
+        odo = new Odo(hardwareMap);
 
-        // starting odometry on a separate thread
+        // continuously update odometry on a separate thread
         registerThread(new TaskThread(new TaskThread.Actions() {
             @Override
             public void loop() {
@@ -24,6 +27,8 @@ public class OdometryTest extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        telemetry.addData("centimeters", odo.getX());
+        telemetry.addData("X centimeters", odo.getX());
+        telemetry.addData("Y centimeters", odo.getY());
+        telemetry.addData("heading in degrees", odo.getHeading());
     }
 }

@@ -32,6 +32,7 @@ public class MecanumDriveSubsystem {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+    // general move method that moves the robot relative to itself
     public void move(double x, double y, double z) {
         // find needed motor powers with joystick vectors
         frontRightPow = - x + y + z;
@@ -54,6 +55,10 @@ public class MecanumDriveSubsystem {
         frontLeft.setPower(frontLeftPow * SCALE);
         backRight.setPower(backRightPow * SCALE);
         backLeft.setPower(backLeftPow * SCALE);
+    }
+
+    // general move method that moves the robot relative to the field
+    public void fieldOrientedMove() {
 
     }
 }

@@ -10,7 +10,7 @@ of a robot in regards to the environment around it.
 In this case, two dead wheels and encoders along with a gyro sensor are used to
 determine X and Y coordinates, as well as heading.
  */
-public class OdometrySubsystem {
+public class Odo {
 
     private final DcMotor vertical;
     private final DcMotor horizontal;
@@ -21,7 +21,7 @@ public class OdometrySubsystem {
 
     private double x, y, theta;
 
-    public OdometrySubsystem(HardwareMap hardwareMap) {
+    public Odo(HardwareMap hardwareMap) {
         imu = new IMUSubsystem(hardwareMap);
 
         vertical = hardwareMap.get(DcMotor.class, "vertical");
@@ -36,8 +36,7 @@ public class OdometrySubsystem {
         If the robot were to move during autonomous period, it would be ideal to save its position on
         the field when transitioning from Auto to TeleOp.
          */
-        vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        horizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        reset();
 
         x = y = theta = 0;
     }
@@ -49,9 +48,7 @@ public class OdometrySubsystem {
 
     public void updatePosition() {
 
-        x = vertical.getCurrentPosition() * TICKS_TO_CM;
 
-        theta = imu.getAngleDEG();
     }
 
     public double getX() {
