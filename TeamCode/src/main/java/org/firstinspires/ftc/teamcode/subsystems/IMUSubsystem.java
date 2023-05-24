@@ -21,4 +21,9 @@ public class IMUSubsystem {
     public double getAngleDEG() {
         return imu.getAngularOrientation().firstAngle * 180 / Math.PI;
     }
+
+    // units are radians per second
+    public double getAngularVelocity() {
+        return imu.getAngularVelocity().zRotationRate;
+    }
 }
