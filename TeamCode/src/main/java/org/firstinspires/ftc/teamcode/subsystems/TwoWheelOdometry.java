@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class TwoWheelOdometry extends Odometry{
 
@@ -22,6 +23,9 @@ public class TwoWheelOdometry extends Odometry{
     private double dVerticalTicks;
     private double dHorizontalTicks;
 
+    // todo delete later
+    private ElapsedTime timer;
+
     public TwoWheelOdometry(HardwareMap hardwareMap) {
         imu = new IMUSubsystem(hardwareMap);
 
@@ -40,6 +44,9 @@ public class TwoWheelOdometry extends Odometry{
         // setting the tuning constants, if no tuning is desired, then leave these as 1
         X_TUNER = 1;
         Y_TUNER = 1;
+
+        // todo delete later
+        timer = new ElapsedTime();
     }
 
     @Override
@@ -52,11 +59,25 @@ public class TwoWheelOdometry extends Odometry{
 
     @Override
     public void updatePosition() {
-        x = vertical.getCurrentPosition() * TICKS_TO_CM;
-        y = vertical.getCurrentPosition() * TICKS_TO_CM;
-        theta = imu.getAngleRAD();
-    }
+//        x = vertical.getCurrentPosition() * TICKS_TO_CM;
+//        y = horizontal.getCurrentPosition() * TICKS_TO_CM;
+//        theta = imu.getAngleRAD();
 
+        timer.reset();
+
+        currVerticalTicks = vertical.getCurrentPosition();
+        currHorizontalTicks = horizontal.getCurrentPosition();
+
+        dVerticalTicks = currVerticalTicks - lastVerticalTicks;
+        dHorizontalTicks = currHorizontalTicks - lastHorizontalTicks;
+
+        x = dVerticalTicks * TICKS_TO_CM / timer.seconds();
+        y = dHorizontalTicks * TICKS_TO_CM / timer.seconds();
+        theta = imu.getAngularVelocity();
+
+        lastVerticalTicks = currVerticalTicks;
+        lastHorizontalTicks = currHorizontalTicks;
+    }
 
     // DOES NOT ACCOUNT FOR WHEN THE ROBOT IS STATIONARY BUT ROTATING
     public void updatePositionOld() {

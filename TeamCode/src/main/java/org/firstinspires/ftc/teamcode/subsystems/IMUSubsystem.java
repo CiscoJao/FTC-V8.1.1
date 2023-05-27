@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 public class IMUSubsystem {
@@ -27,10 +29,5 @@ public class IMUSubsystem {
     // units are radians per second
     public double getAngularVelocity() {
         return imu.getAngularVelocity().zRotationRate;
-    }
-
-    // todo delete later
-    public Velocity getVelocity() {
-        return imu.getVelocity();
     }
 }
