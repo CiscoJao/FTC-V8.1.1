@@ -11,14 +11,14 @@ public class TwoWheelOdometry extends Odometry{
     private final IMUSubsystem imu;
 
     // constants that define geometry of the robot
-    private final double L1 = 1;
-    private final double L2 = 1;
+    private final double L1 = 20.15618755; // distance of the vertical from the center of rotation
+    private final double L2 = 17.87437649; // distance of the horizontal from the center of rotation
 
     // for tracking position updates
     private double lastVerticalTicks;
     private double lastHorizontalTicks;
-    private double currentVerticalTicks;
-    private double currentHorizontalTicks;
+    private double currVerticalTicks;
+    private double currHorizontalTicks;
     private double dVerticalTicks;
     private double dHorizontalTicks;
 
@@ -30,15 +30,7 @@ public class TwoWheelOdometry extends Odometry{
 
         // directions are subject to change depending on how you assemble the robot
         vertical.setDirection(DcMotorSimple.Direction.REVERSE);
-        horizontal.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        /*
-        In some cases, you don't want to reset the encoders on initialization, this is because
-        the robot will initialize the odometry system between different OpModes.
-        If the robot were to move during autonomous period, it would be ideal to save its position on
-        the field when transitioning from Auto to TeleOp.
-         */
-        reset();
+        horizontal.setDirection(DcMotorSimple.Direction.REVERSE);
 
         /*
         NOTE: x, y, and theta have already been initialized to zero in the constructor of the parent
@@ -46,41 +38,49 @@ public class TwoWheelOdometry extends Odometry{
         */
 
         // setting the tuning constants, if no tuning is desired, then leave these as 1
-        X_TUNER = 1.01596288;
-        Y_TUNER = 1.00755931;
+        X_TUNER = 1;
+        Y_TUNER = 1;
     }
 
     @Override
     public void reset() {
         vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         horizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        x = y = theta = 0;
     }
 
     @Override
     public void updatePosition() {
         x = vertical.getCurrentPosition() * TICKS_TO_CM;
-        y = horizontal.getCurrentPosition() * TICKS_TO_CM;
+        y = vertical.getCurrentPosition() * TICKS_TO_CM;
         theta = imu.getAngleRAD();
-//        // finding the total distance (S) encoders have travelled in ticks since the last update
-//        currentVerticalTicks = vertical.getCurrentPosition();
-//        currentHorizontalTicks = horizontal.getCurrentPosition();
-//
-//        dVerticalTicks = currentVerticalTicks - lastVerticalTicks;
-//        dHorizontalTicks = currentHorizontalTicks - lastHorizontalTicks;
-//
-//        // finding the changes in position since the last update using the derived movement equations
-//        dtheta = imu.getAngularVelocity(); // the change of angle over time is angular velocity
-//        dx = (TICKS_TO_CM * dVerticalTicks) + (L1 * dtheta);
-//        dy = (TICKS_TO_CM * dHorizontalTicks) + (L2 * dtheta);
-//
-//        // add the small change in position to the overall position, while also accounting for field orientation
-//        // NOTE: remember Java Math uses RADIANS, ensure that all theta values are in RAD
-//        x += dx * Math.cos(theta) - dy * Math.sin(theta);
-//        y += dx * Math.sin(theta) + dy * Math.cos(theta);
-//        theta = imu.getAngleRAD();
-//
-//        // record the previous encoder positions for the next update
-//        lastVerticalTicks = currentVerticalTicks;
-//        lastHorizontalTicks = currentHorizontalTicks;
+    }
+
+
+    // DOES NOT ACCOUNT FOR WHEN THE ROBOT IS STATIONARY BUT ROTATING
+    public void updatePositionOld() {
+
+        // finding the total distance (S) encoders have travelled in ticks since the last update
+        currVerticalTicks = vertical.getCurrentPosition();
+        currHorizontalTicks = horizontal.getCurrentPosition();
+
+        dVerticalTicks = currVerticalTicks - lastVerticalTicks;
+        dHorizontalTicks = currHorizontalTicks - lastHorizontalTicks;
+
+        // finding the changes in position since the last update using the derived movement equations
+        dtheta = imu.getAngularVelocity(); // the change of angle over time is angular velocity
+        dx = (TICKS_TO_CM * dVerticalTicks) + (L1 * dtheta);
+        dy = (TICKS_TO_CM * dHorizontalTicks) + (L2 * dtheta);
+
+        // add the small change in position to the overall position, while also accounting for field orientation
+        // NOTE: remember Java Math uses RADIANS, ensure that all theta values are in RAD
+        x += dx * Math.cos(theta) - dy * Math.sin(theta);
+        y += dx * Math.sin(theta) + dy * Math.cos(theta);
+        theta = imu.getAngleRAD();
+
+        // record the previous encoder positions for the next update
+        lastVerticalTicks = currVerticalTicks;
+        lastHorizontalTicks = currHorizontalTicks;
     }
 }

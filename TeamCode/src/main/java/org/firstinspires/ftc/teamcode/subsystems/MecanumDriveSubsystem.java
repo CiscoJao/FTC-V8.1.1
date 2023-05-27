@@ -58,7 +58,29 @@ public class MecanumDriveSubsystem {
     }
 
     // general move method that moves the robot relative to the field
-    public void fieldOrientedMove() {
+    public void fieldOrientedMove(double x, double y, double z, double theta) {
+        // translate the field relative movement (joystick) into the robot relative movement
+        double newX = x * Math.cos(theta) + y * Math.sin(theta);
+        double newY = - x * Math.sin(theta) + y * Math.cos(theta);
 
+        frontRightPow = - newX + newY - z;
+        frontLeftPow = newX + newY + z;
+        backRightPow = newX + newY - z;
+        backLeftPow = - newX + newY + z;
+
+        double largest = Math.max(
+                Math.max(Math.abs(frontRightPow), Math.abs(frontLeftPow)),
+                Math.max(Math.abs(backRightPow), Math.abs(backLeftPow)));
+        if (largest > 1) {
+            frontRightPow /= largest;
+            frontLeftPow /= largest;
+            backRightPow /= largest;
+            backLeftPow /= largest;
+        }
+
+        frontRight.setPower(frontRightPow * SCALE);
+        frontLeft.setPower(frontLeftPow * SCALE);
+        backRight.setPower(backRightPow * SCALE);
+        backLeft.setPower(backLeftPow * SCALE);
     }
 }

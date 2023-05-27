@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.IMUSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Odo;
 import org.firstinspires.ftc.teamcode.subsystems.TwoWheelOdometry;
 import org.firstinspires.ftc.teamcode.threadopmode.TaskThread;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
@@ -23,6 +21,7 @@ public class OdometryTest extends ThreadOpMode {
     public void mainInit() {
 
         odo = new TwoWheelOdometry(hardwareMap);
+        odo.reset();
         drive = new MecanumDriveSubsystem(hardwareMap);
         imu = new IMUSubsystem(hardwareMap); // todo delete later
 
@@ -41,12 +40,18 @@ public class OdometryTest extends ThreadOpMode {
 
     @Override
     public void mainLoop() {
-        drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        //drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+        drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, odo.getHeading());
 
         telemetry.addData("X centimeters", odo.getXPos());
         telemetry.addData("Y centimeters", odo.getYPos());
-        telemetry.addData("heading in degrees", odo.getHeading() * 180 / Math.PI);
+        telemetry.addData("Heading from Odo", Math.toDegrees(odo.getHeading()));
+        telemetry.addData("Heading from IMU", imu.getAngleDEG());
         telemetry.addData("angular velocity", imu.getAngularVelocity());
+        telemetry.addLine();
+        telemetry.addData("X Velocity", imu.getVelocity().xVeloc);
+        telemetry.addData("Y Velocity", imu.getVelocity().yVeloc);
+        telemetry.addData("Z Velocity", imu.getVelocity().zVeloc);
         telemetry.update();
     }
 }
