@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@TeleOp(name="curriculum")
 public class ArmTest extends LinearOpMode {
 
-    DcMotor arm;
-    Servo right;
-    Servo left;
+    private DcMotor arm;
+    private Servo right;
+    private Servo left;
+
+    private final double SCALE = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,7 +36,7 @@ public class ArmTest extends LinearOpMode {
         left.setPosition(0.5);
 
         while(opModeIsActive()) {
-            arm.setPower(gamepad1.right_stick_y);
+            arm.setPower(gamepad1.right_stick_y * SCALE);
 
             if (gamepad1.a) {
                 right.setPosition(0);
