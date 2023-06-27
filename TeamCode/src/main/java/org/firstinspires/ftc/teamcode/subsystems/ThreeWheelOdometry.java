@@ -60,7 +60,7 @@ public class ThreeWheelOdometry extends Odometry {
         aux = hardwareMap.get(DcMotor.class, "horizontalOdo");
 
         // directions are subject to change depending on how you assemble the robot
-        right.setDirection(DcMotorSimple.Direction.FORWARD);
+        right.setDirection(DcMotorSimple.Direction.REVERSE);
         left.setDirection(DcMotorSimple.Direction.FORWARD);
         aux.setDirection(DcMotorSimple.Direction.FORWARD);
 
