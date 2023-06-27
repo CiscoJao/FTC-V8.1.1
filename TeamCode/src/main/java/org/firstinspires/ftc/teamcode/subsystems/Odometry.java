@@ -8,35 +8,14 @@ Abstract classes can be used to organize code and keep it neat. In this case, th
 the common methods and attributes that both 2 wheel and 3 wheel odometry classes will use.
  */
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.util.concurrent.TimeUnit;
-
 public abstract class Odometry {
-    public DcMotor lEncoder, rEncoder, bEncoder;
 
     public static final double WHEEL_DIAMETER = 3.5; // in centimeters
     public static final double TICKS_PER_REV = 8192;
     public static final double GEAR_RATIO = 1;
     public static final double TICKS_TO_CM = (Math.PI * WHEEL_DIAMETER * GEAR_RATIO) / TICKS_PER_REV; // circumference over ticks
-
-    public double x = 0;
-    public double y = 0;
-    public double theta = 0;
-    public double tempX = 0;
-    public double tempY = 0;
-    public double dx = 0;
-    public double dy = 0;
-    public double dTheta = 0;
-    public int lEncoderi = 0;
-    public int rEncoderi = 0;
-    public int bEncoderi = 0;
-    public int lEncoderf = 0;
-    public int rEncoderf = 0;
-    public int bEncoderf = 0;
-
-    public ElapsedTime time;
+    double x, y, theta;
+    double dx, dy, dtheta;
 
     /*
     These tuning values are used to further calibrate the odometry pods. There will always be external
@@ -76,37 +55,4 @@ public abstract class Odometry {
     public double getHeading() {
         return theta;
     }
-}
-
-class OdometrySubSystem extends Odometry {
-
-    public void reset() {
-        // reset encoders
-        x = y = theta = 0;
-    }
-
-    public void updatePosition() {
-        // update position
-        time.reset();
-        lEncoderf = lEncoder.getCurrentPosition();
-        rEncoderf = rEncoder.getCurrentPosition();
-        bEncoderf = bEncoder.getCurrentPosition();
-        dx = dxc*((lEncoderf-lEncoderi)+(rEncoderf-rEncoderi));
-        dTheta = dThetac*((rEncoderf-rEncoderi)-(lEncoderf-lEncoderi)); //unit circle direction
-        dy = (dyc*(bEncoderf-bEncoderi))+(lengthFromOdometrySideToFront*dTheta);
-        tempX = (dx*Math.cos(theta))+(dy*Math.sin(theta));
-        tempY = (dy*Math.cos(theta))-(dx*Math.sin(theta));
-        x = x+tempX;
-        y = y+tempY;
-        theta += dTheta;
-        if (theta > 2*Math.PI){
-            theta -= 2*Math.PI;
-        } else if (theta < 0){
-            theta += 2*Math.PI;
-        }
-        rEncoderi = rEncoderf;
-        lEncoderi = lEncoderf;
-        bEncoderi = bEncoderf;
-    }
-
 }
