@@ -10,6 +10,34 @@ public class ThreeWheelOdometry extends Odometry {
     private final DcMotor left;
     private final DcMotor aux;
 
+    public double getLeft(){
+        return left.getCurrentPosition();
+    }
+
+    public double getRight(){
+        return right.getCurrentPosition();
+    }
+
+    public double getAux(){
+        return aux.getCurrentPosition();
+    }
+
+    public double getDx(){
+        return dx;
+    }
+
+    public double getDy(){
+        return dy;
+    }
+
+    public double getTheta(){
+        return theta;
+    }
+
+    public double getDTheta(){
+        return dtheta;
+    }
+
     // constants that define geometry of the robot
     private final double L1 = 1; // distance of right encoder from the center of rotation
     private final double L2 = 20.15618755; // distance of left encoder from the center of rotation
@@ -68,7 +96,7 @@ public class ThreeWheelOdometry extends Odometry {
         dAuxTicks = currAuxTicks - lastAuxTicks;
 
         // finding the changes in position since the last update using the derived movement equations
-        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L1 + L2);
+        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L2*2);
         dx = TICKS_TO_CM * (dRightTicks + dLeftTicks) / 2;
         dy = TICKS_TO_CM * dAuxTicks + L3 * dtheta;
 
@@ -79,6 +107,11 @@ public class ThreeWheelOdometry extends Odometry {
         theta += dtheta;
 
         // todo include, clip theta in the range of -180 < theta < 180 if over
+        if (theta > Math.PI*2){
+            theta -= Math.PI*2;
+        } else if (theta < 0){
+            theta += Math.PI*2;
+        }
 
         // record the previous encoder positions for the next update
         lastRightTicks = currRightTicks;
