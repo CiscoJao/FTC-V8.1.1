@@ -43,7 +43,7 @@ public class OdometryTest extends ThreadOpMode {
     public void mainLoop() {
 
         //drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
-        drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, imu.getAngleRAD());
+        drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, odo.getHeading());
         telemetry.addData("dx", odo.getDx());
         telemetry.addData("dy", odo.getDy());
         telemetry.addData("dtheta", odo.getDTheta());
