@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 /*
-AVERAGE PROCESSING TIMES:
+AVERAGE PROCESSING TIMES BASED ON IMAGE RESOLUTION:
 320x176 30 ms
 800x448 60-80 ms
 1280x960 220 ms

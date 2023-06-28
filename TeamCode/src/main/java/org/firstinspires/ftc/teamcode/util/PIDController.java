@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.subsystems_legacy.PIDSubsystem;
 
 /*
-This is a general PID class that can be used for any application such as for positions and velocties.
+This is a general PID class that can be used for any application such as for positions and velocities.
 Simply initialize an instance of this class with your desired PID constants.
  */
 
