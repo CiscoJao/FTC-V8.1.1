@@ -119,3 +119,15 @@ public class ThreeWheelOdometry extends Odometry {
         lastAuxTicks = currAuxTicks;
     }
 }
+
+class GyroOdometry extends ThreeWheelOdometry {
+
+    public GyroOdometry(HardwareMap hardwareMap) {
+        super(hardwareMap);
+    }
+
+    @Override
+    public void updatePosition() {
+        
+    }
+}
