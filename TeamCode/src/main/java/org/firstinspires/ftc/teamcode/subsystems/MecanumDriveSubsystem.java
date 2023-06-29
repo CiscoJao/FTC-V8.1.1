@@ -48,6 +48,10 @@ public class MecanumDriveSubsystem {
         cameraPID.setConstant(kpCamera, kdCamera, kiCamera);
     }
 
+    public void setCamera(double kp, double kd, double ki){
+        cameraPID.setConstant(kp, kd, ki);
+    }
+
     protected final DcMotor frontRight, frontLeft, backRight, backLeft;
     protected double frontRightPow, frontLeftPow, backRightPow, backLeftPow;
     private final double SCALE = 0.75; // for scaling motor powers down
@@ -133,8 +137,11 @@ public class MecanumDriveSubsystem {
         fieldOrientedMove(xPower, yPower, thetaPower, odometry.getTheta());
     }
 
-    public void adjustThetaCamera(CameraSubsystem camera){
-        double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
-        fieldOrientedMove(0, 0, thetaPower, odometry.getTheta());
+    public void adjustThetaCamera(CameraSubsystem camera, ThreeWheelOdometry odometry, boolean following) {
+        while(following || Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10) {
+            double thetaPower = cameraPID.PIDOutput((int) Math.round(camera.getPipeline().largestContourCenter().x), ContourPipeline.CENTER_X);
+            fieldOrientedMove(0, 0, -thetaPower, odometry.getTheta());
+        }
+        fieldOrientedMove(0, 0, 0, 0);
     }
 }
