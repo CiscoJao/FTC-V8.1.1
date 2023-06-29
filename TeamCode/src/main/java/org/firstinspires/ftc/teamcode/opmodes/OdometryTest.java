@@ -24,7 +24,7 @@ public class OdometryTest extends ThreadOpMode {
         odo = new ThreeWheelOdometry(hardwareMap);
         odo.reset();
         drive = new MecanumDriveSubsystem(hardwareMap);
-        imu = new IMUSubsystem(hardwareMap); // todo delete later
+//        imu = new IMUSubsystem(hardwareMap); // todo delete later
 
         // outputting values to FTCDashboard for debugging
         FtcDashboard dashboard = FtcDashboard.getInstance();

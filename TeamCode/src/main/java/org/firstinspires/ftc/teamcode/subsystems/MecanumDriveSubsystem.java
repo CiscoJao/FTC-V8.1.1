@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.graphics.Camera;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -122,5 +124,17 @@ public class MecanumDriveSubsystem {
         frontLeft.setPower(frontLeftPow * SCALE);
         backRight.setPower(backRightPow * SCALE);
         backLeft.setPower(backLeftPow * SCALE);
+    }
+
+    public void adjustToCoord(double x, double y, double theta) {
+        double xPower = globalXPID.PIDOutput(x, odometry.getXPos());
+        double yPower = globalYPID.PIDOutput(y, odometry.getYPos());
+        double thetaPower = globalThetaPID.PIDOutput(theta, odometry.getTheta());
+        fieldOrientedMove(xPower, yPower, thetaPower, odometry.getTheta());
+    }
+
+    public void adjustThetaCamera(CameraSubsystem camera){
+        double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
+        fieldOrientedMove(0, 0, thetaPower, odometry.getTheta());
     }
 }
