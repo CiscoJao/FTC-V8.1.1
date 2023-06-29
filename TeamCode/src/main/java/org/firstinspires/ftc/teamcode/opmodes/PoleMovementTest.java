@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumMovement;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.ContourPipeline;
 
@@ -17,41 +18,38 @@ import java.util.List;
 public class PoleMovementTest extends LinearOpMode {
 
     private CameraSubsystem camera;
-    private TurretSubsystem turret;
-    private MecanumDriveSubsystem drive;
+    private MecanumMovement drive;
+
+    private FtcDashboard dashboard;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         camera = new CameraSubsystem(hardwareMap);
-        turret = new TurretSubsystem(hardwareMap);
-        drive = new MecanumDriveSubsystem(hardwareMap);
+        drive = new MecanumMovement(hardwareMap);
 
         // outputting values to FTCDashboard for debugging
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry()); // allows telemetry to output to phone and dashboard
-
+        boolean followPole = false;
         waitForStart();
 
         while (opModeIsActive()) {
             // user controls
-            if (gamepad1.right_trigger > 0) {
-                turret.turn(gamepad1.right_trigger);
-            } else if (gamepad1.left_trigger > 0) {
-                turret.turn(-gamepad1.left_trigger);
+
+            if (gamepad1.a){
+                followPole = !followPole;
             }
 
             drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
             // reporting turret data
-            telemetry.addLine("TURRET DATA");
-            telemetry.addData("Turret motor power", turret.getMotorPower());
-            telemetry.addData("Turret position", turret.getPosition());
+            telemetry.addData("followPole", followPole);
             telemetry.addLine();
 
             // reporting the pole detection and contour data
             telemetry.addLine("CAMERA DATA");
-            if (camera.getPipeline().poleDetected()) {
+            if (camera.getPipeline().poleDetected() && followPole) {
                 // NOTE temporary list was created to prevent this OpMode thread to interfere with the Pipeline thread
                 List<Double> tmp = new ArrayList<>(camera.getPipeline().getContourAreas());
                 telemetry.addData("Processing time (ms)", camera.getPipeline().getProcessTime());
@@ -62,13 +60,18 @@ public class PoleMovementTest extends LinearOpMode {
                 telemetry.addData("Y location", camera.getPipeline().largestContourCenter().y);
                 telemetry.addData("Camera center", ContourPipeline.CENTER_X);
                 telemetry.addLine();
+                drive.adjustThetaCamera();
 
                 // point camera towards the detected pole
-                turret.followPID(ContourPipeline.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
+
 
             } else {
-                telemetry.addLine("No contours detected");
-                turret.stop();
+                if(camera.getPipeline().poleDetected()){
+                    telemetry.addData("pole detected", "but not following");
+                }
+                else{
+                    telemetry.addData("pole not detected", "not following");
+                }
             }
             telemetry.update();
         }

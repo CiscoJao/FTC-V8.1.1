@@ -30,7 +30,7 @@ public class MecanumDriveSubsystem {
     protected static PIDController cameraPID = new PIDController(kpCamera, kdCamera, kiCamera);
 
 
-    public void setConstants(double kpx, double kdx, double kix, double kpy, double kdy, double kiy, double kptheta, double kdtheta, double kitheta){
+    public void setConstants(double kpx, double kdx, double kix, double kpy, double kdy, double kiy, double kptheta, double kdtheta, double kitheta) {
         MecanumDriveSubsystem.kpx = kpx;
         MecanumDriveSubsystem.kdx = kdx;
         MecanumDriveSubsystem.kix = kix;
@@ -75,10 +75,10 @@ public class MecanumDriveSubsystem {
     // general move method that moves the robot relative to itself
     public void move(double x, double y, double z) {
         // find needed motor powers with joystick vectors
-        frontRightPow = - x + y - z;
+        frontRightPow = -x + y - z;
         frontLeftPow = x + y + z;
         backRightPow = x + y - z;
-        backLeftPow = - x + y + z;
+        backLeftPow = -x + y + z;
 
         // scale motor powers down to keep in range of -1 < power < 1
         double largest = Math.max(
@@ -101,12 +101,12 @@ public class MecanumDriveSubsystem {
     public void fieldOrientedMove(double x, double y, double z, double theta) {
         // translate the field relative movement (joystick) into the robot relative movement
         double newX = x * Math.cos(theta) + y * Math.sin(theta);
-        double newY = - x * Math.sin(theta) + y * Math.cos(theta);
+        double newY = -x * Math.sin(theta) + y * Math.cos(theta);
 
-        frontRightPow = - newX + newY - z;
+        frontRightPow = -newX + newY - z;
         frontLeftPow = newX + newY + z;
         backRightPow = newX + newY - z;
-        backLeftPow = - newX + newY + z;
+        backLeftPow = -newX + newY + z;
 
         double largest = Math.max(
                 Math.max(Math.abs(frontRightPow), Math.abs(frontLeftPow)),
@@ -123,27 +123,4 @@ public class MecanumDriveSubsystem {
         backRight.setPower(backRightPow * SCALE);
         backLeft.setPower(backLeftPow * SCALE);
     }
-}
-
-class MecanumMovement extends MecanumDriveSubsystem {
-
-    private CameraSubsystem camera;
-    public MecanumMovement(HardwareMap hardwareMap) {
-        super(hardwareMap);
-        camera = new CameraSubsystem(hardwareMap);
-    }
-
-    public void adjustToCoord(double x, double y, double theta) {
-        double xPower = globalXPID.PIDOutput(x, odometry.getXPos());
-        double yPower = globalYPID.PIDOutput(y, odometry.getYPos());
-        double thetaPower = globalThetaPID.PIDOutput(theta, odometry.getTheta());
-        fieldOrientedMove(xPower, yPower, thetaPower, odometry.getTheta());
-    }
-
-    public void adjustThetaCamera(){
-        double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
-        fieldOrientedMove(odometry.x, odometry.y, thetaPower, odometry.getTheta());
-    }
-
-
 }
