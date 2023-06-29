@@ -4,10 +4,50 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.util.ContourPipeline;
+import org.firstinspires.ftc.teamcode.util.PIDController;
+
 public class MecanumDriveSubsystem {
 
-    private final DcMotor frontRight, frontLeft, backRight, backLeft;
-    private double frontRightPow, frontLeftPow, backRightPow, backLeftPow;
+    protected ThreeWheelOdometry odometry;
+    private static double kpx = 0.066;
+    private static double kdx = 0.08;
+    private static double kix = 0;
+    private static double kpy = 0.08;
+    private static double kdy = 0.0005;
+    private static double kiy = 0;
+    private static double kptheta = 2;
+    private static double kdtheta = 0.2;
+    private static double kitheta = 0.0;
+
+    private static double kpCamera = 0.0001;
+    private static double kdCamera = 0.0001;
+    private static double kiCamera = 0.0001;
+
+    protected static PIDController globalXPID = new PIDController(kpx, kdx, kix);
+    protected static PIDController globalYPID = new PIDController(kpy, kdy, kiy);
+    protected static PIDController globalThetaPID = new PIDController(kptheta, kdtheta, kitheta);
+    protected static PIDController cameraPID = new PIDController(kpCamera, kdCamera, kiCamera);
+
+
+    public void setConstants(double kpx, double kdx, double kix, double kpy, double kdy, double kiy, double kptheta, double kdtheta, double kitheta){
+        MecanumDriveSubsystem.kpx = kpx;
+        MecanumDriveSubsystem.kdx = kdx;
+        MecanumDriveSubsystem.kix = kix;
+        MecanumDriveSubsystem.kpy = kpy;
+        MecanumDriveSubsystem.kdy = kdy;
+        MecanumDriveSubsystem.kiy = kiy;
+        MecanumDriveSubsystem.kptheta = kptheta;
+        MecanumDriveSubsystem.kdtheta = kdtheta;
+        MecanumDriveSubsystem.kitheta = kitheta;
+        globalXPID.setConstant(kpx, kdx, kix);
+        globalYPID.setConstant(kpy, kdy, kiy);
+        globalThetaPID.setConstant(kptheta, kdtheta, kitheta);
+        cameraPID.setConstant(kpCamera, kdCamera, kiCamera);
+    }
+
+    protected final DcMotor frontRight, frontLeft, backRight, backLeft;
+    protected double frontRightPow, frontLeftPow, backRightPow, backLeftPow;
     private final double SCALE = 0.75; // for scaling motor powers down
 
     public MecanumDriveSubsystem(HardwareMap hardwareMap) {
@@ -83,4 +123,27 @@ public class MecanumDriveSubsystem {
         backRight.setPower(backRightPow * SCALE);
         backLeft.setPower(backLeftPow * SCALE);
     }
+}
+
+class MecanumMovement extends MecanumDriveSubsystem {
+
+    private CameraSubsystem camera;
+    public MecanumMovement(HardwareMap hardwareMap) {
+        super(hardwareMap);
+        camera = new CameraSubsystem(hardwareMap);
+    }
+
+    public void adjustToCoord(double x, double y, double theta) {
+        double xPower = globalXPID.PIDOutput(x, odometry.getXPos());
+        double yPower = globalYPID.PIDOutput(y, odometry.getYPos());
+        double thetaPower = globalThetaPID.PIDOutput(theta, odometry.getTheta());
+        fieldOrientedMove(xPower, yPower, thetaPower, odometry.getTheta());
+    }
+
+    public void adjustThetaCamera(){
+        double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
+        fieldOrientedMove(odometry.x, odometry.y, thetaPower, odometry.getTheta());
+    }
+
+
 }

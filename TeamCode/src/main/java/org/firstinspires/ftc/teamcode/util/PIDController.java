@@ -23,6 +23,12 @@ public class PIDController {
         timer = new ElapsedTime();
     }
 
+    public void setConstant(double kp, double ki, double kd) {
+        this.kp = kp;
+        this.ki = ki;
+        this.kd = kd;
+    }
+
     public double PIDOutput(double current, double target) {
         double error = target - current;
         integralSum += error * timer.seconds();
