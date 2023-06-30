@@ -51,6 +51,19 @@ public class ThreePolesTest extends LinearOpMode {
         }
         sleep(5000);
         drive.adjustToCoord(60, 0, 0);
+        sleep(3000);
+        drive.adjustToCoord(60, 0, -0.4);
+        sleep(3000);
+        drive.adjustThetaCamera(camera, true);
+        sleep(3000);
+        drive.adjustToCoord(60, 0, 1.2);
+        sleep(3000);
+        drive.adjustThetaCamera(camera, true);
+        sleep(3000);
+        drive.adjustToCoord(60, 0, 2.4);
+        sleep(3000);
+        drive.adjustThetaCamera(camera, true);
+        sleep(3000);
     }
 
     public void runOdometry(){

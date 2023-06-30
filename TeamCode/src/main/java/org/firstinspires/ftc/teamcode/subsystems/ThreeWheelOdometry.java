@@ -103,9 +103,9 @@ public class ThreeWheelOdometry extends Odometry {
         theta += dtheta;
 
         // todo include, clip theta in the range of -180 < theta < 180 if over
-        if (theta > Math.PI*2){
+        if (theta > Math.PI){
             theta -= Math.PI*2;
-        } else if (theta < 0){
+        } else if (theta < -Math.PI){
             theta += Math.PI*2;
         }
 

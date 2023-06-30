@@ -12,21 +12,25 @@ import org.firstinspires.ftc.teamcode.util.PIDController;
 public class MecanumDriveSubsystem {
 
     protected ThreeWheelOdometry odometry;
-    private static double kpx = 0.066;
-    private static double kdx = 0.08;
+
+    public double xcurrent = 0;
+    public double ycurrent = 0;
+    public double thetacurrent = 0;
+    private static double kpx = 0.001;
+    private static double kdx = 0.001;
     private static double kix = 0;
-    private static double kpy = 0.08;
-    private static double kdy = 0.0005;
+    private static double kpy = 0.001;
+    private static double kdy = 0.0001;
     private static double kiy = 0;
-    private static double kptheta = 2;
-    private static double kdtheta = 0.2;
+    private static double kptheta = 0.5;
+    private static double kdtheta = 0.002;
     private static double kitheta = 0.0;
 
     public double[] thePowers = new double[3];
 
-    private static double kpCamera = 0.0001;
-    private static double kdCamera = 0.0001;
-    private static double kiCamera = 0.0001;
+    private static double kpCamera = 0.005;
+    private static double kdCamera = 0;
+    private static double kiCamera = 0;
 
     public double testError = 0;
 
@@ -160,14 +164,18 @@ public class MecanumDriveSubsystem {
     }
 
     public void adjustToCoord(double x, double y, double theta) {
-        double xPower = globalXPID.PIDOutput(odometry.getXPos(), x);
-        double yPower = globalYPID.PIDOutput(odometry.getYPos(), y);
-        double thetaPower = globalThetaPID.PIDOutput(odometry.getHeading(), theta);
-        thePowers[0] = xPower;
-        thePowers[1] = yPower;
-        thePowers[2] = thetaPower;
-        while(Math.abs(x - odometry.getXPos()) < 5 || Math.abs(y - odometry.getYPos()) < 5 || Math.abs(theta - odometry.getHeading()) < 0.3) {
-            fieldOrientedMove(xPower, yPower, thetaPower, odometry.getHeading());
+        while(!(Math.abs(x - xcurrent) < 5) || !(Math.abs(y - ycurrent) < 5) || !(Math.abs(theta - thetacurrent) < 0.3)) {
+            //for some reason fieldOrientedMove swaps yPower and xPower
+            xcurrent = odometry.getXPos();
+            ycurrent = odometry.getYPos();
+            thetacurrent = odometry.getHeading();
+            double xPower = globalXPID.PIDOutput(xcurrent, x);
+            double yPower = globalYPID.PIDOutput(ycurrent, y);
+            double thetaPower = globalThetaPID.PIDOutput(thetacurrent, theta);
+            thePowers[0] = xPower;
+            thePowers[1] = yPower;
+            thePowers[2] = thetaPower;
+//            fieldOrientedMove(yPower, xPower, thetaPower, odometry.getHeading());
         }
     }
 
