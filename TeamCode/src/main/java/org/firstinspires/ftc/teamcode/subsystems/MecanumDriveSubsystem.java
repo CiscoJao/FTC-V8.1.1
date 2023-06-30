@@ -171,14 +171,14 @@ public class MecanumDriveSubsystem {
             thetacurrent = odometry.getHeading();
             double xPower = globalXPID.PIDOutput(xcurrent, x);
             double yPower = globalYPID.PIDOutput(ycurrent, y);
-            double thetaPower;
-            if(thetacurrent - theta > theta - thetacurrent) {
-                //we want the smaller one out of the two
-                thetaPower = globalThetaPID.PIDOutput(theta, thetacurrent);
-            }
-            else{
-                thetaPower = globalThetaPID.PIDOutput(thetacurrent, theta);
-            }
+            double thetaPower = globalThetaPID.PIDOutput(thetacurrent, theta);
+//            if(thetacurrent - theta > theta - thetacurrent) {
+//                //we want the smaller one out of the two
+//                thetaPower = globalThetaPID.PIDOutput(theta, thetacurrent);
+//            }
+//            else{
+//                thetaPower = globalThetaPID.PIDOutput(thetacurrent, theta);
+//            }
             thePowers[0] = xPower;
             thePowers[1] = yPower;
             thePowers[2] = thetaPower;
