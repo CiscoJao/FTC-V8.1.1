@@ -60,7 +60,7 @@ public class PoleMovementTest extends LinearOpMode {
                 following = !following;
             }
 
-            drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            drive.fieldOrientedMove(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, odometry.getHeading());
 
             // reporting the pole detection and contour data
 //            telemetry.addLine("CAMERA DATA");
@@ -80,7 +80,7 @@ public class PoleMovementTest extends LinearOpMode {
                 if(gamepad1.right_bumper){
                     following = !following;
                 }
-                drive.adjustThetaCamera(camera, odometry, following);
+                drive.adjustThetaCamera(camera, following);
 //
             } else {
                 telemetry.addLine("No contours detected");
@@ -93,7 +93,8 @@ public class PoleMovementTest extends LinearOpMode {
             odometry.updatePosition();
             telemetry.addData("x", odometry.getXPos());
             telemetry.addData("y", odometry.getYPos());
-            telemetry.addData("theta", odometry.getTheta());
+            telemetry.addData("theta", odometry.getHeading());
+            telemetry.addData("imutheta", odometry.getHeading());
             telemetry.addData("following", following);
             telemetry.addData("kp", kp);
             telemetry.addData("kd", kd);

@@ -22,6 +22,8 @@ public class MecanumDriveSubsystem {
     private static double kdtheta = 0.2;
     private static double kitheta = 0.0;
 
+    public double[] thePowers = new double[3];
+
     private static double kpCamera = 0.0001;
     private static double kdCamera = 0.0001;
     private static double kiCamera = 0.0001;
@@ -81,6 +83,30 @@ public class MecanumDriveSubsystem {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+    public MecanumDriveSubsystem(HardwareMap hardwareMap, ThreeWheelOdometry odometry) {
+        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        backRight = hardwareMap.get(DcMotor.class, "backRight");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        this.odometry = odometry;
+    }
+
     // general move method that moves the robot relative to itself
     public void move(double x, double y, double z) {
         // find needed motor powers with joystick vectors
@@ -134,18 +160,23 @@ public class MecanumDriveSubsystem {
     }
 
     public void adjustToCoord(double x, double y, double theta) {
-        double xPower = globalXPID.PIDOutput(x, odometry.getXPos());
-        double yPower = globalYPID.PIDOutput(y, odometry.getYPos());
-        double thetaPower = globalThetaPID.PIDOutput(theta, odometry.getTheta());
-        fieldOrientedMove(xPower, yPower, thetaPower, odometry.getTheta());
+        double xPower = globalXPID.PIDOutput(odometry.getXPos(), x);
+        double yPower = globalYPID.PIDOutput(odometry.getYPos(), y);
+        double thetaPower = globalThetaPID.PIDOutput(odometry.getHeading(), theta);
+        thePowers[0] = xPower;
+        thePowers[1] = yPower;
+        thePowers[2] = thetaPower;
+        while(Math.abs(x - odometry.getXPos()) < 5 || Math.abs(y - odometry.getYPos()) < 5 || Math.abs(theta - odometry.getHeading()) < 0.3) {
+            fieldOrientedMove(xPower, yPower, thetaPower, odometry.getHeading());
+        }
     }
 
-    public void adjustThetaCamera(CameraSubsystem camera, ThreeWheelOdometry odometry, boolean following) {
+    public void adjustThetaCamera(CameraSubsystem camera, boolean following) {
         while(following && !(Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10)  ) {
             testError = camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X;
             double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int) camera.getPipeline().largestContourCenter().x);
             thetapower = thetaPower;
-            fieldOrientedMove(0, 0, thetaPower, odometry.getTheta());
+            fieldOrientedMove(0, 0, thetaPower, odometry.getHeading());
         }
     }
 }

@@ -30,10 +30,6 @@ public class ThreeWheelOdometry extends Odometry {
         return dy;
     }
 
-    public double getTheta(){
-        return theta;
-    }
-
     public double getDTheta(){
         return dtheta;
     }
