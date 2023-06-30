@@ -34,6 +34,16 @@ public class PoleMovementTest extends LinearOpMode {
     public static double kd = 0.0;
     public static double ki = 0;
 
+    public static double kpx = 0.001;
+    public static double kdx = 0.001;
+    public static double kix = 0;
+    public static double kpy = 0.001;
+    public static double kdy = 0.0001;
+    public static double kiy = 0;
+    public static double kptheta = 0.5;
+    public static double kdtheta = 0.002;
+    public static double kitheta = 0.0;
+
     boolean following = false;
 
     @Override
@@ -42,6 +52,7 @@ public class PoleMovementTest extends LinearOpMode {
         camera = new CameraSubsystem(hardwareMap);
         odometry = new ThreeWheelOdometry(hardwareMap);
         drive = new MecanumDriveSubsystem(hardwareMap, odometry);
+        drive.setConstants(kpx, kdx, kix, kpy, kdy, kiy, kptheta, kdtheta, kitheta);
         odometry.reset();
         // outputting values to FTCDashboard for debugging
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -64,7 +75,7 @@ public class PoleMovementTest extends LinearOpMode {
 
             // reporting the pole detection and contour data
 //            telemetry.addLine("CAMERA DATA");
-            drive.adjustToCoord(60, 0, 0);
+//            drive.adjustToCoord(60, 0, 0);
             if (camera.getPipeline().poleDetected() && following) {
                 // NOTE temporary list was created to prevent this OpMode thread to interfere with the Pipeline thread
                 List<Double> tmp = new ArrayList<>(camera.getPipeline().getContourAreas());
@@ -81,7 +92,7 @@ public class PoleMovementTest extends LinearOpMode {
                 if(gamepad1.right_bumper){
                     following = !following;
                 }
-//                drive.adjustThetaCamera(camera, following);
+                drive.adjustThetaCamera(camera, following);
 //
             }/* else {
                 telemetry.addLine("No contours detected");
@@ -93,10 +104,14 @@ public class PoleMovementTest extends LinearOpMode {
         while(opModeIsActive()) {
             odometry.updatePosition();
             telemetry.addData("xcurrent", drive.xcurrent);
-            tel
-//            telemetry.addData("x power", -gamepad1.left_stick_x);
-//            telemetry.addData("y power", gamepad1.left_stick_y);
-//            telemetry.addData("theta power", gamepad1.right_stick_x);
+            telemetry.addData("ycurrent", drive.ycurrent);
+            telemetry.addData("thetacurrent", drive.thetacurrent);
+            telemetry.addData("x", odometry.getXPos());
+            telemetry.addData("y", odometry.getYPos());
+            telemetry.addData("theta", odometry.getHeading());
+            telemetry.addData("x power", drive.thePowers[0]);
+            telemetry.addData("y power", drive.thePowers[1]);
+            telemetry.addData("theta power", drive.thePowers[2]);
 //            telemetry.addData("x", odometry.getXPos());
 //            telemetry.addData("y", odometry.getYPos());
 //            telemetry.addData("theta", odometry.getHeading());
