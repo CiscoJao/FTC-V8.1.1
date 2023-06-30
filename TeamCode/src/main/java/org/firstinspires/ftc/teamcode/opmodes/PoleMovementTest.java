@@ -30,9 +30,9 @@ public class PoleMovementTest extends LinearOpMode {
 
     private ThreeWheelOdometry odometry;
 
-    public static double kp = 0.01;
-    public static double kd = 0.01;
-    public static double ki = 0.01;
+    public static double kp = 0.005;
+    public static double kd = 0.0;
+    public static double ki = 0;
 
     boolean following = false;
 
@@ -47,7 +47,7 @@ public class PoleMovementTest extends LinearOpMode {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         dashboard.startCameraStream(camera.camera, 24);
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry()); // allows telemetry to output to phone and dashboard
-
+        drive.setCamera(kp, kd, ki);
         waitForStart();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Executor executor = Executors.newFixedThreadPool(4);
@@ -56,12 +56,8 @@ public class PoleMovementTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             // user controls
-            if(gamepad1.a){
+            if(gamepad1.right_bumper){
                 following = !following;
-            }
-
-            if(gamepad1.b){
-                drive.setCamera(kp, kd, ki);
             }
 
             drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
@@ -81,7 +77,10 @@ public class PoleMovementTest extends LinearOpMode {
 ////                telemetry.addLine();
 //
 //                // point camera towards the detected pole
-                drive.adjustThetaCamera(camera, odometry, following);
+                while(following && !(Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10)  ) {
+                    drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+                    drive.adjustThetaCamera(camera, odometry, following);
+                }
 //
 //            } else {
 ////                telemetry.addLine("No contours detected");
@@ -103,6 +102,8 @@ public class PoleMovementTest extends LinearOpMode {
             telemetry.addData("Y location", camera.getPipeline().largestContourCenter().y);
             telemetry.addData("Camera center", ContourPipeline.CENTER_X);
             telemetry.addData("camera error", camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X);
+            telemetry.addData("thetapower",drive.thetapower);
+            telemetry.addData("testError", drive.testError);
             telemetry.update();
         }
     }

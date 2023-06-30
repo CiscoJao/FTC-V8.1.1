@@ -26,11 +26,14 @@ public class MecanumDriveSubsystem {
     private static double kdCamera = 0.0001;
     private static double kiCamera = 0.0001;
 
+    public double testError = 0;
+
     protected static PIDController globalXPID = new PIDController(kpx, kdx, kix);
     protected static PIDController globalYPID = new PIDController(kpy, kdy, kiy);
     protected static PIDController globalThetaPID = new PIDController(kptheta, kdtheta, kitheta);
     protected static PIDController cameraPID = new PIDController(kpCamera, kdCamera, kiCamera);
 
+    public double thetapower;
 
     public void setConstants(double kpx, double kdx, double kix, double kpy, double kdy, double kiy, double kptheta, double kdtheta, double kitheta) {
         MecanumDriveSubsystem.kpx = kpx;
@@ -138,10 +141,9 @@ public class MecanumDriveSubsystem {
     }
 
     public void adjustThetaCamera(CameraSubsystem camera, ThreeWheelOdometry odometry, boolean following) {
-        while(following || Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10) {
-            double thetaPower = cameraPID.PIDOutput((int) Math.round(camera.getPipeline().largestContourCenter().x), ContourPipeline.CENTER_X);
-            fieldOrientedMove(0, 0, -thetaPower, odometry.getTheta());
-        }
-        fieldOrientedMove(0, 0, 0, 0);
+        testError = camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X;
+        double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int) camera.getPipeline().largestContourCenter().x);
+        thetapower = thetaPower;
+        fieldOrientedMove(0, 0, thetaPower, odometry.getTheta());
     }
 }
