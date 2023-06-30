@@ -141,9 +141,11 @@ public class MecanumDriveSubsystem {
     }
 
     public void adjustThetaCamera(CameraSubsystem camera, ThreeWheelOdometry odometry, boolean following) {
-        testError = camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X;
-        double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int) camera.getPipeline().largestContourCenter().x);
-        thetapower = thetaPower;
-        fieldOrientedMove(0, 0, thetaPower, odometry.getTheta());
+        while(following && !(Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10)  ) {
+            testError = camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X;
+            double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int) camera.getPipeline().largestContourCenter().x);
+            thetapower = thetaPower;
+            fieldOrientedMove(0, 0, thetaPower, odometry.getTheta());
+        }
     }
 }

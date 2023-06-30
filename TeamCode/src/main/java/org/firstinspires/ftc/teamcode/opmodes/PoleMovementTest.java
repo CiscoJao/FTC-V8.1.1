@@ -77,13 +77,13 @@ public class PoleMovementTest extends LinearOpMode {
 ////                telemetry.addLine();
 //
 //                // point camera towards the detected pole
-                while(following && !(Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10)  ) {
-                    drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-                    drive.adjustThetaCamera(camera, odometry, following);
+                if(gamepad1.right_bumper){
+                    following = !following;
                 }
+                drive.adjustThetaCamera(camera, odometry, following);
 //
-//            } else {
-////                telemetry.addLine("No contours detected");
+            } else {
+                telemetry.addLine("No contours detected");
             }
         }
     }
