@@ -50,17 +50,19 @@ public class ThreePolesTest extends LinearOpMode {
             CompletableFuture.runAsync(this::runTelemetry, executor);
         }
         sleep(5000);
-        drive.adjustToCoord(60, 0, 0);
+        drive.adjustToCoord(65, 0, 0);
         sleep(3000);
-        drive.adjustToCoord(60, 0, -0.4);
-        sleep(3000);
-        drive.adjustThetaCamera(camera, true);
-        sleep(3000);
-        drive.adjustToCoord(60, 0, 1.2);
+        drive.adjustToCoord(65, 0, -0.9);
         sleep(3000);
         drive.adjustThetaCamera(camera, true);
         sleep(3000);
-        drive.adjustToCoord(60, 0, 2.4);
+        drive.adjustToCoord(65, 0, -2.3);
+        sleep(3000);
+        drive.adjustThetaCamera(camera, true);
+        sleep(3000);
+        drive.adjustToCoord(65, 0, 0);
+        sleep(3000);
+        drive.adjustToCoord(65, 0, 2.5);
         sleep(3000);
         drive.adjustThetaCamera(camera, true);
         sleep(3000);

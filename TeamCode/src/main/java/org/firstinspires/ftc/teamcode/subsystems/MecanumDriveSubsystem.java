@@ -16,19 +16,19 @@ public class MecanumDriveSubsystem {
     public double xcurrent = 0;
     public double ycurrent = 0;
     public double thetacurrent = 0;
-    private static double kpx = 0.001;
-    private static double kdx = 0.001;
+    private static double kpx = 0.03;
+    private static double kdx = 0.0000;
     private static double kix = 0;
-    private static double kpy = 0.001;
-    private static double kdy = 0.0001;
+    private static double kpy = 0.03;
+    private static double kdy = 0.0000;
     private static double kiy = 0;
-    private static double kptheta = 0.5;
-    private static double kdtheta = 0.002;
+    private static double kptheta = 0.8;
+    private static double kdtheta = 0.00;
     private static double kitheta = 0.0;
 
     public double[] thePowers = new double[3];
 
-    private static double kpCamera = 0.005;
+    private static double kpCamera = 0.003;
     private static double kdCamera = 0;
     private static double kiCamera = 0;
 
@@ -164,27 +164,36 @@ public class MecanumDriveSubsystem {
     }
 
     public void adjustToCoord(double x, double y, double theta) {
-        while(!(Math.abs(x - xcurrent) < 5) || !(Math.abs(y - ycurrent) < 5) || !(Math.abs(theta - thetacurrent) < 0.3)) {
+        while((Math.abs(x - xcurrent) > 5) || (Math.abs(y - ycurrent) > 5) || (Math.abs(theta - thetacurrent) > 0.2)) {
             //for some reason fieldOrientedMove swaps yPower and xPower
             xcurrent = odometry.getXPos();
             ycurrent = odometry.getYPos();
             thetacurrent = odometry.getHeading();
             double xPower = globalXPID.PIDOutput(xcurrent, x);
             double yPower = globalYPID.PIDOutput(ycurrent, y);
-            double thetaPower = globalThetaPID.PIDOutput(thetacurrent, theta);
+            double thetaPower;
+            if(thetacurrent - theta > theta - thetacurrent) {
+                //we want the smaller one out of the two
+                thetaPower = globalThetaPID.PIDOutput(theta, thetacurrent);
+            }
+            else{
+                thetaPower = globalThetaPID.PIDOutput(thetacurrent, theta);
+            }
             thePowers[0] = xPower;
             thePowers[1] = yPower;
             thePowers[2] = thetaPower;
-//            fieldOrientedMove(yPower, xPower, thetaPower, odometry.getHeading());
+            fieldOrientedMove(yPower, xPower, thetaPower, odometry.getHeading());
         }
+        fieldOrientedMove(0, 0, 0, odometry.getHeading());
     }
 
     public void adjustThetaCamera(CameraSubsystem camera, boolean following) {
-        while(following && !(Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) <= 10)  ) {
+        while(following && (Math.abs(camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X) >= 4)  ) {
             testError = camera.getPipeline().largestContourCenter().x - ContourPipeline.CENTER_X;
             double thetaPower = cameraPID.PIDOutput(ContourPipeline.CENTER_X, (int) camera.getPipeline().largestContourCenter().x);
             thetapower = thetaPower;
             fieldOrientedMove(0, 0, thetaPower, odometry.getHeading());
         }
+        fieldOrientedMove(0, 0, 0, odometry.getHeading());
     }
 }

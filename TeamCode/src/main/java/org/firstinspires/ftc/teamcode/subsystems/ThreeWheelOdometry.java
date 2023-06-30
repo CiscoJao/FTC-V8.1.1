@@ -37,7 +37,7 @@ public class ThreeWheelOdometry extends Odometry {
     // constants that define geometry of the robot
     protected final double L1 = 1; // distance of right encoder from the center of rotation
     protected final double L2 = 20.15618755; // distance of left encoder from the center of rotation
-    protected final double L3 = 17.87437649; // distance of horizontal encoder from the center of rotation
+    protected final double L3 = 20.32; // distance of horizontal encoder from the center of rotation
 
     // for tracking position updates
     protected double lastRightTicks;
@@ -92,7 +92,7 @@ public class ThreeWheelOdometry extends Odometry {
         dAuxTicks = currAuxTicks - lastAuxTicks;
 
         // finding the changes in position since the last update using the derived movement equations
-        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L2*2);
+        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (2*L2/*+L1*/);
         dx = TICKS_TO_CM * (dRightTicks + dLeftTicks) / 2;
         dy = TICKS_TO_CM * dAuxTicks + L3 * dtheta;
 
@@ -147,9 +147,9 @@ class GyroOdometry extends ThreeWheelOdometry {
         theta += dtheta;
 
         // todo include, clip theta in the range of -180 < theta < 180 if over
-        if (theta > Math.PI*2){
+        if (theta > Math.PI){
             theta -= Math.PI*2;
-        } else if (theta < 0){
+        } else if (theta < -Math.PI){
             theta += Math.PI*2;
         }
 
