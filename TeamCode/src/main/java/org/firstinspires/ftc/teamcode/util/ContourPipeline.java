@@ -35,7 +35,7 @@ Created by Francisco Jao
 public class ContourPipeline extends OpenCvPipeline {
 
     // for tracking pipeline processing speed
-    private ElapsedTime timer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime();
     private double processTime = 0;
 
     // constants
@@ -58,6 +58,10 @@ public class ContourPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
+
+        if (input.empty()) {
+            return input;
+        }
 
         // blurring the input image to improve edge and contour detection
         Mat blur = new Mat();
@@ -105,7 +109,7 @@ public class ContourPipeline extends OpenCvPipeline {
         }
 
         // drawing the center x coordinate for testing
-        Imgproc.drawMarker(draw, new Point(CENTER_X, CENTER_Y), WHITE);
+        //Imgproc.drawMarker(draw, new Point(CENTER_X, CENTER_Y), WHITE);
 
         draw.copyTo(output);
 
@@ -120,20 +124,18 @@ public class ContourPipeline extends OpenCvPipeline {
         processTime = timer.milliseconds();
         timer.reset();
 
-        return output; // what the camera stream will display on stream
+        return output; // what the camera stream will display on the phone
     }
 
     /*
      * finds the index of the largest contour and uses that index to grab the desired contour
-     * from the list, then it grabs the image moment properties to calculate its enter of mass
-     *
-     * although the code for this is very long, it is the method that takes up the least memory
+     * from the list, then it grabs the image moment properties to calculate its enter of mass\
     */
     private void findLargestContourCenter(List<MatOfPoint> contours) {
-        largestContourCenter.x = Imgproc.moments(contours.get(contourAreas.indexOf(largestContourArea))).get_m10() /
-                Imgproc.moments(contours.get(contourAreas.indexOf(largestContourArea))).get_m00();
-        largestContourCenter.y = Imgproc.moments(contours.get(contourAreas.indexOf(largestContourArea))).get_m01() /
-                Imgproc.moments(contours.get(contourAreas.indexOf(largestContourArea))).get_m00();
+        MatOfPoint largestContour = contours.get(contourAreas.indexOf(largestContourArea));
+
+        largestContourCenter.x = Imgproc.moments(largestContour).get_m10() / Imgproc.moments(largestContour).get_m00();
+        largestContourCenter.y = Imgproc.moments(largestContour).get_m01() / Imgproc.moments(largestContour).get_m00();
     }
 
     public double getProcessTime() {
