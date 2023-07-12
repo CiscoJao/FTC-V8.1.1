@@ -15,6 +15,8 @@ public class CameraSubsystem {
 
     public static final int VIEW_WIDTH = 320;
     public static final int VIEW_HEIGHT = 176;
+    public static final int CENTER_X = VIEW_WIDTH / 2;
+    public static final int CENTER_Y = VIEW_HEIGHT / 2;
 
     public CameraSubsystem(HardwareMap hardwareMap){
 

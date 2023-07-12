@@ -39,8 +39,6 @@ public class ContourPipeline extends OpenCvPipeline {
     private double processTime = 0;
 
     // constants
-    public static final int CENTER_X = CameraSubsystem.VIEW_WIDTH / 2;
-    public static final int CENTER_Y = CameraSubsystem.VIEW_HEIGHT / 2;
     private final Size KERNEL = new Size(20, 20);
     private final Scalar WHITE = new Scalar(255, 255, 255);
     private final Scalar CONTOUR_COLOR = new Scalar(0, 255, 255);
@@ -109,7 +107,7 @@ public class ContourPipeline extends OpenCvPipeline {
         }
 
         // drawing the center x coordinate for testing
-        //Imgproc.drawMarker(draw, new Point(CENTER_X, CENTER_Y), WHITE);
+        Imgproc.drawMarker(draw, new Point(CameraSubsystem.CENTER_X, CameraSubsystem.CENTER_Y), WHITE);
 
         draw.copyTo(output);
 

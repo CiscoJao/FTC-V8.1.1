@@ -1,33 +1,40 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class IMUSubsystem {
 
-    private final BNO055IMU imu;
+    private final IMU imu;
 
     public IMUSubsystem(HardwareMap hardwareMap) {
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                )
+        );
+
+        imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(parameters);
     }
 
-    public double getAngleRAD() {
-        return imu.getAngularOrientation().firstAngle;
+    public void resetHeading() {
+        imu.resetYaw();
     }
 
-    public double getAngleDEG() {
-        return imu.getAngularOrientation().firstAngle * 180 / Math.PI;
+    public double getHeadingDEG() {
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 
-    // units are radians per second
+    public double getHeadingRAD() {
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+    }
+
     public double getAngularVelocity() {
-        return imu.getAngularVelocity().zRotationRate;
+        return imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate;
     }
 }

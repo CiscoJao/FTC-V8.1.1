@@ -22,7 +22,6 @@ public class PoleDetectionTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         camera = new CameraSubsystem(hardwareMap);
         turret = new TurretSubsystem(hardwareMap);
         drive = new MecanumDriveSubsystem(hardwareMap);
@@ -42,7 +41,7 @@ public class PoleDetectionTest extends LinearOpMode {
                 turret.turn(-gamepad1.left_trigger);
             }
 
-            drive.move(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            drive.move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
 
             // reporting turret data
             telemetry.addLine("TURRET DATA");
@@ -61,11 +60,11 @@ public class PoleDetectionTest extends LinearOpMode {
                 telemetry.addData("Area", camera.getPipeline().largestContourArea());
                 telemetry.addData("X location", camera.getPipeline().largestContourCenter().x);
                 telemetry.addData("Y location", camera.getPipeline().largestContourCenter().y);
-                telemetry.addData("Camera center", ContourPipeline.CENTER_X);
+                telemetry.addData("Camera center", CameraSubsystem.CENTER_X);
                 telemetry.addLine();
 
                 // point camera towards the detected pole
-                turret.followPID(ContourPipeline.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
+                turret.followPID(CameraSubsystem.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
 
             } else {
                 telemetry.addLine("No contours detected");

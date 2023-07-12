@@ -27,8 +27,8 @@ public abstract class Odometry {
     getting an average of those results. But bare in mind that this will never 100% correct all
     accuracy errors, only minimize them.
      */
-    double X_TUNER = 1;
-    double Y_TUNER = 1;
+    double X_TUNER;
+    double Y_TUNER;
 
     public Odometry() {
         x = y = theta = 0;

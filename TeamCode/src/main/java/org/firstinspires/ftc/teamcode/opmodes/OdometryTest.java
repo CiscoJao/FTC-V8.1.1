@@ -41,12 +41,12 @@ public class OdometryTest extends ThreadOpMode {
     @Override
     public void mainLoop() {
         //drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
-        drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, imu.getAngleRAD());
+        drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, imu.getHeadingRAD());
 
         telemetry.addData("X centimeters", odo.getXPos());
         telemetry.addData("Y centimeters", odo.getYPos());
         telemetry.addData("Heading from Odo", Math.toDegrees(odo.getHeading()));
-        telemetry.addData("Heading from IMU", imu.getAngleDEG());
+        telemetry.addData("Heading from IMU", imu.getHeadingDEG());
         telemetry.addData("angular velocity", Math.toDegrees(imu.getAngularVelocity()));
         telemetry.update();
     }

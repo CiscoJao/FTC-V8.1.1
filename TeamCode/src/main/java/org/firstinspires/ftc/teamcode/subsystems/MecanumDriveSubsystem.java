@@ -35,10 +35,10 @@ public class MecanumDriveSubsystem {
     // general move method that moves the robot relative to itself
     public void move(double x, double y, double z) {
         // find needed motor powers with joystick vectors
-        frontRightPow = - x + y - z;
-        frontLeftPow = x + y + z;
-        backRightPow = x + y - z;
-        backLeftPow = - x + y + z;
+        frontRightPow = x + y - z;
+        frontLeftPow = - x + y + z;
+        backRightPow = - x + y - z;
+        backLeftPow = x + y + z;
 
         // scale motor powers down to keep in range of -1 < power < 1
         double largest = Math.max(

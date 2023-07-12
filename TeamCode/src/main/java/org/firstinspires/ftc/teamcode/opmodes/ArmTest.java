@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+/*
+For testing the Level 1 robot in the curriculum
+ */
 @TeleOp(name="curriculum")
 public class ArmTest extends LinearOpMode {
 
