@@ -3,6 +3,11 @@ package org.firstinspires.ftc.teamcode.curriculum;
 public class Main {
     public void run() {
 
+        Robot friday = new Robot();
+        friday.introduceMyself();
+        friday.sayAge();
+        friday.veryComplexAction();
+
         Animal generalAnimal = new Animal();
         generalAnimal.eat();
 

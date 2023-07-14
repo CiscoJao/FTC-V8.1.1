@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -18,33 +15,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/*
-AVERAGE PROCESSING TIMES BASED ON IMAGE RESOLUTION:
-320x176 30 ms
-800x448 60-80 ms
-1280x960 220 ms
+public class PoleFollowPipeline extends OpenCvPipeline {
 
-This pipeline is designed to filter out the yellow poles and detect their edges.
-Additionally, the pipeline also finds the areas and their center of masses of the detected
-yellow shapes.
-Once this information is found, the pipeline regularly updates which contour it thinks is the largest,
-in other words, which pole is deemed as the "closest"
-
-Created by Francisco Jao
- */
-public class ContourPipeline extends OpenCvPipeline {
-
-    // for tracking pipeline processing speed
-    private final ElapsedTime timer = new ElapsedTime();
-    private double processTime = 0;
-
-    // constants
-    public static final int CENTER_X = CameraSubsystem.VIEW_WIDTH / 2;
-    public static final int CENTER_Y = CameraSubsystem.VIEW_HEIGHT / 2;
+    // CONSTANTS
     private final Size KERNEL = new Size(20, 20);
-    private final Scalar WHITE = new Scalar(255, 255, 255);
-    private final Scalar CONTOUR_COLOR = new Scalar(0, 255, 255);
-    private final Scalar CONTOUR_CENTER_COLOUR = new Scalar(255,0,255);
+    private final Scalar CONTOUR_COLOUR = new Scalar(0, 255, 255);
+    private final Scalar CONTOUR_CENTER_COLOUR = new Scalar(255, 0, 255);
     private final Scalar UPPER_HSV = new Scalar(30, 255, 255);
     private final Scalar LOWER_HSV = new Scalar(10, 130, 130);
 
@@ -52,16 +28,12 @@ public class ContourPipeline extends OpenCvPipeline {
     Mat output = new Mat();
 
     // for contour detection
-    private List<Double> contourAreas = new ArrayList<>(); // records contour areas with pixels as the unit
+    private List<Double> contourAreas = new ArrayList<>();
     private double largestContourArea = 0;
     private Point largestContourCenter = new Point(0, 0);
 
     @Override
     public Mat processFrame(Mat input) {
-
-        if (input.empty()) {
-            return input;
-        }
 
         // blurring the input image to improve edge and contour detection
         Mat blur = new Mat();
@@ -79,7 +51,8 @@ public class ContourPipeline extends OpenCvPipeline {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         // RETR_EXTERNAL means to retrieve only the external contours
-        // CHAIN_APPROX_SIMPLE means to compress horizontal, vertical, and diagonal segments and only leaves their endpoints
+        // CHAIN_APPROX_SIMPLE means to compress horizontal,
+        // vertical, and diagonal segments and only leaves their endpoints
         Imgproc.findContours(threshold, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         // set up output image where contours will be drawn on (creates a pure black image)
@@ -91,7 +64,8 @@ public class ContourPipeline extends OpenCvPipeline {
             for (int i = 0; i < contours.size(); i++) {
                 contourAreas.add(Imgproc.contourArea(contours.get(i)));
 
-                // using properties of image moments to calculate the center of masses of contours (from docs.opencv.org)
+                // using properties of image moments to calculate the
+                // center of masses of contours (from docs.opencv.org)
                 Moments currMoments = Imgproc.moments(contours.get(i));
                 double cx = currMoments.get_m10() / currMoments.get_m00();
                 double cy = currMoments.get_m01() / currMoments.get_m00();
@@ -101,49 +75,34 @@ public class ContourPipeline extends OpenCvPipeline {
             }
 
             // draw all of the contours on output image
-            Imgproc.drawContours(draw, contours, -1, CONTOUR_COLOR);
+            Imgproc.drawContours(draw, contours, -1, CONTOUR_COLOUR);
 
             // finding the largest contour area and the location of its center
             largestContourArea = Collections.max(contourAreas, null);
             findLargestContourCenter(contours);
         }
 
-        // drawing the center x coordinate for testing
-        //Imgproc.drawMarker(draw, new Point(CENTER_X, CENTER_Y), WHITE);
-
         draw.copyTo(output);
 
-        // deallocating matrix memory to prevent memory leaks
+        // deallocate matrix memory
         blur.release();
         hsv.release();
         threshold.release();
         hierarchy.release();
         draw.release();
 
-        // tracking pipeline speed
-        processTime = timer.milliseconds();
-        timer.reset();
-
-        return output; // what the camera stream will display on the phone
+        return output;
     }
 
     /*
      * finds the index of the largest contour and uses that index to grab the desired contour
-     * from the list, then it grabs the image moment properties to calculate its enter of mass\
-    */
+     * from the list, then it grabs the image moment properties to calculate its enter of mass
+     */
     private void findLargestContourCenter(List<MatOfPoint> contours) {
         MatOfPoint largestContour = contours.get(contourAreas.indexOf(largestContourArea));
 
         largestContourCenter.x = Imgproc.moments(largestContour).get_m10() / Imgproc.moments(largestContour).get_m00();
         largestContourCenter.y = Imgproc.moments(largestContour).get_m01() / Imgproc.moments(largestContour).get_m00();
-    }
-
-    public double getProcessTime() {
-        return processTime;
-    }
-
-    public List<Double> getContourAreas() {
-        return contourAreas;
     }
 
     public double largestContourArea() {

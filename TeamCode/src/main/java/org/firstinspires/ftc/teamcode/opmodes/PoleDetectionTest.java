@@ -27,7 +27,8 @@ public class PoleDetectionTest extends LinearOpMode {
         turret = new TurretSubsystem(hardwareMap);
         drive = new MecanumDriveSubsystem(hardwareMap);
 
-        // outputting values to FTCDashboard for debugging
+        // outputting values and camera stream to FTCDashboard for debugging
+        FtcDashboard.getInstance().startCameraStream(camera.camera, 30);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry()); // allows telemetry to output to phone and dashboard
 
