@@ -6,25 +6,49 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class ThreeWheelOdometry extends Odometry {
 
-    private final DcMotor right;
-    private final DcMotor left;
-    private final DcMotor aux;
+    protected final DcMotor right;
+    protected final DcMotor left;
+    protected final DcMotor aux;
+
+    public double getLeft(){
+        return left.getCurrentPosition();
+    }
+
+    public double getRight(){
+        return right.getCurrentPosition();
+    }
+
+    public double getAux(){
+        return aux.getCurrentPosition();
+    }
+
+    public double getDx(){
+        return dx;
+    }
+
+    public double getDy(){
+        return dy;
+    }
+
+    public double getDTheta(){
+        return dtheta;
+    }
 
     // constants that define geometry of the robot
-    private final double L1 = 1; // distance of right encoder from the center of rotation
-    private final double L2 = 20.15618755; // distance of left encoder from the center of rotation
-    private final double L3 = 17.87437649; // distance of horizontal encoder from the center of rotation
+    protected final double L1 = 1; // distance of right encoder from the center of rotation
+    protected final double L2 = 20.15618755; // distance of left encoder from the center of rotation
+    protected final double L3 = 20.32; // distance of horizontal encoder from the center of rotation
 
     // for tracking position updates
-    private double lastRightTicks;
-    private double lastLeftTicks;
-    private double lastAuxTicks;
-    private double currRightTicks;
-    private double currLeftTicks;
-    private double currAuxTicks;
-    private double dRightTicks;
-    private double dLeftTicks;
-    private double dAuxTicks;
+    protected double lastRightTicks;
+    protected double lastLeftTicks;
+    protected double lastAuxTicks;
+    protected double currRightTicks;
+    protected double currLeftTicks;
+    protected double currAuxTicks;
+    protected double dRightTicks;
+    protected double dLeftTicks;
+    protected double dAuxTicks;
 
     public ThreeWheelOdometry(HardwareMap hardwareMap) {
         right = hardwareMap.get(DcMotor.class, "rightOdo");
@@ -32,7 +56,7 @@ public class ThreeWheelOdometry extends Odometry {
         aux = hardwareMap.get(DcMotor.class, "horizontalOdo");
 
         // directions are subject to change depending on how you assemble the robot
-        right.setDirection(DcMotorSimple.Direction.FORWARD);
+        right.setDirection(DcMotorSimple.Direction.REVERSE);
         left.setDirection(DcMotorSimple.Direction.FORWARD);
         aux.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -68,7 +92,7 @@ public class ThreeWheelOdometry extends Odometry {
         dAuxTicks = currAuxTicks - lastAuxTicks;
 
         // finding the changes in position since the last update using the derived movement equations
-        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L1 + L2);
+        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (2*L2/*+L1*/);
         dx = TICKS_TO_CM * (dRightTicks + dLeftTicks) / 2;
         dy = TICKS_TO_CM * dAuxTicks + L3 * dtheta;
 
@@ -79,6 +103,55 @@ public class ThreeWheelOdometry extends Odometry {
         theta += dtheta;
 
         // todo include, clip theta in the range of -180 < theta < 180 if over
+        if (theta > Math.PI){
+            theta -= Math.PI*2;
+        } else if (theta < -Math.PI){
+            theta += Math.PI*2;
+        }
+
+        // record the previous encoder positions for the next update
+        lastRightTicks = currRightTicks;
+        lastLeftTicks = currLeftTicks;
+        lastAuxTicks = currAuxTicks;
+    }
+
+}
+
+class GyroOdometry extends ThreeWheelOdometry {
+
+    public GyroOdometry(HardwareMap hardwareMap) {
+        super(hardwareMap);
+    }
+
+    @Override
+    public void updatePosition() {
+        //theta from imu instead of encoders
+
+        currRightTicks = right.getCurrentPosition();
+        currLeftTicks = left.getCurrentPosition();
+        currAuxTicks = aux.getCurrentPosition();
+
+        dRightTicks = currRightTicks - lastRightTicks;
+        dLeftTicks = currLeftTicks - lastLeftTicks;
+        dAuxTicks = currAuxTicks - lastAuxTicks;
+
+        // finding the changes in position since the last update using the derived movement equations
+        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L2*2);
+        dx = TICKS_TO_CM * (dRightTicks + dLeftTicks) / 2;
+        dy = TICKS_TO_CM * dAuxTicks + L3 * dtheta;
+
+        // add the small change in position to the overall position, while also accounting for field orientation
+        // NOTE: remember Java Math uses RADIANS, ensure that all theta values are in RAD
+        x += dx * Math.cos(theta) - dy * Math.sin(theta);
+        y += dx * Math.sin(theta) + dy * Math.cos(theta);
+        theta += dtheta;
+
+        // todo include, clip theta in the range of -180 < theta < 180 if over
+        if (theta > Math.PI){
+            theta -= Math.PI*2;
+        } else if (theta < -Math.PI){
+            theta += Math.PI*2;
+        }
 
         // record the previous encoder positions for the next update
         lastRightTicks = currRightTicks;
