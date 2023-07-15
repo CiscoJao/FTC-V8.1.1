@@ -11,7 +11,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 public class CameraSubsystem {
     public OpenCvCamera camera;
     private ContourPipeline contourPipeline; // pipeline designed to look for contours of the poles
-    int cameraMonitorViewId; // ID of the viewport which camera feed will be displayed
+    private int cameraMonitorViewId; // ID of the viewport which camera feed will be displayed
 
     public static final int VIEW_WIDTH = 320;
     public static final int VIEW_HEIGHT = 176;

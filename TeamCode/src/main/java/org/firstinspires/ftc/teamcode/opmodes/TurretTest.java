@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
-@TeleOp(name="turret basic move")
+@TeleOp(name="Turret Test")
 public class TurretTest extends OpMode {
 
     private TurretSubsystem turret;
@@ -17,6 +17,6 @@ public class TurretTest extends OpMode {
 
     @Override
     public void loop() {
-        turret.turn(gamepad1.right_stick_y);
+        turret.turn(gamepad1.right_stick_x);
     }
 }

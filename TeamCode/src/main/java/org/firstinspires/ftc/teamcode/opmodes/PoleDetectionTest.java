@@ -6,25 +6,31 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IMUSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.ContourPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name="Pole Detection Testing")
+@TeleOp(name="Pole Detection Test")
 public class PoleDetectionTest extends LinearOpMode {
 
     private CameraSubsystem camera;
     private TurretSubsystem turret;
     private MecanumDriveSubsystem drive;
+    private SensorSubsystem sensor;
+    private IMUSubsystem imu;
 
     @Override
     public void runOpMode() throws InterruptedException {
         camera = new CameraSubsystem(hardwareMap);
         turret = new TurretSubsystem(hardwareMap);
         drive = new MecanumDriveSubsystem(hardwareMap);
+        sensor = new SensorSubsystem(hardwareMap);
+        imu = new IMUSubsystem(hardwareMap);
 
         // outputting values and camera stream to FTCDashboard for debugging
         FtcDashboard.getInstance().startCameraStream(camera.camera, 30);
@@ -41,12 +47,14 @@ public class PoleDetectionTest extends LinearOpMode {
                 turret.turn(-gamepad1.left_trigger);
             }
 
-            drive.move(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+            //drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+            drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, imu.getHeadingRAD());
 
             // reporting turret data
             telemetry.addLine("TURRET DATA");
             telemetry.addData("Turret motor power", turret.getMotorPower());
             telemetry.addData("Turret position", turret.getPosition());
+            telemetry.addData("Distance sensor", sensor.getDistanceCM());
             telemetry.addLine();
 
             // reporting the pole detection and contour data
@@ -75,3 +83,17 @@ public class PoleDetectionTest extends LinearOpMode {
         }
     }
 }
+
+/*
+
+if (power > 0.5) {
+    if ((raining && no umbrella) || (dark && power < 0.75)) {
+        stay inside
+    } else {
+        go outside
+    }
+} else {
+    stay inside
+}
+
+ */

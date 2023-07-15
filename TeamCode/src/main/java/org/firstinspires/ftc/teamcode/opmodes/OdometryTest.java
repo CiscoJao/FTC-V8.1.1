@@ -6,24 +6,26 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.IMUSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.TwoWheelOdometry;
+import org.firstinspires.ftc.teamcode.subsystems.OdometrySubsystem;
 import org.firstinspires.ftc.teamcode.threadopmode.TaskThread;
 import org.firstinspires.ftc.teamcode.threadopmode.ThreadOpMode;
 
 @TeleOp(name="Odo Test")
 public class OdometryTest extends ThreadOpMode {
 
-    private TwoWheelOdometry odo;
     private MecanumDriveSubsystem drive;
-    private IMUSubsystem imu; // todo delete later
+    private OdometrySubsystem odo;
+    private IMUSubsystem imu; // for testing the heading with another source
 
     @Override
     public void mainInit() {
 
-        odo = new TwoWheelOdometry(hardwareMap);
-        odo.reset();
         drive = new MecanumDriveSubsystem(hardwareMap);
-        imu = new IMUSubsystem(hardwareMap); // todo delete later
+        odo = new OdometrySubsystem(hardwareMap);
+        imu = new IMUSubsystem(hardwareMap);
+
+        odo.reset();
+        imu.resetHeading();
 
         // outputting values to FTCDashboard for debugging
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -43,11 +45,17 @@ public class OdometryTest extends ThreadOpMode {
         //drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, imu.getHeadingRAD());
 
-        telemetry.addData("X centimeters", odo.getXPos());
-        telemetry.addData("Y centimeters", odo.getYPos());
-        telemetry.addData("Heading from Odo", Math.toDegrees(odo.getHeading()));
-        telemetry.addData("Heading from IMU", imu.getHeadingDEG());
-        telemetry.addData("angular velocity", Math.toDegrees(imu.getAngularVelocity()));
+        telemetry.addLine("Odometry data");
+        telemetry.addData("X position", odo.getXPos());
+        telemetry.addData("Y position", odo.getYPos());
+        telemetry.addData("Heading", odo.getHeading() / Math.PI);
+        telemetry.addData("Right ticks", odo.right.getCurrentPosition());
+        telemetry.addData("Left ticks", odo.left.getCurrentPosition());
+        telemetry.addData("Aux ticks", odo.aux.getCurrentPosition());
+        telemetry.addLine();
+        telemetry.addLine("IMU Data");
+        telemetry.addData("Heading DEG", imu.getHeadingDEG());
+        telemetry.addData("Heading RAD", imu.getHeadingRAD() / Math.PI);
         telemetry.update();
     }
 }
