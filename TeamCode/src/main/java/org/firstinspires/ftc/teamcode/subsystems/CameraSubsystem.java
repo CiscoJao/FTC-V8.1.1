@@ -35,15 +35,13 @@ public class CameraSubsystem {
         // runs camera on a separate thread so it can run simultaneously with everything else
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener(){
             @Override
-            public void onOpened()
-            {
+            public void onOpened() {
                 // starts the camera stream when init is pressed
                 camera.startStreaming(VIEW_WIDTH,VIEW_HEIGHT, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
-            public void onError(int errorCode)
-            {
+            public void onError(int errorCode) {
 
             }
         });

@@ -58,7 +58,7 @@ public class OdometrySubsystem {
         // directions are subject to change depending on how you assemble the robot
         right.setDirection(DcMotorSimple.Direction.REVERSE);
         left.setDirection(DcMotorSimple.Direction.FORWARD);
-        aux.setDirection(DcMotorSimple.Direction.FORWARD);
+        aux.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void reset() {
@@ -79,7 +79,7 @@ public class OdometrySubsystem {
         dAuxTicks = currAuxTicks - lastAuxTicks;
 
         // finding the changes in position since the last update using the derived movement equations
-        dtheta = TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L1 + L2);
+        dtheta = - TICKS_TO_CM * (dRightTicks - dLeftTicks) / (L1 + L2);
         dx = TICKS_TO_CM * (dRightTicks + dLeftTicks) / 2;
         dy = TICKS_TO_CM * dAuxTicks + L3 * dtheta;
 

@@ -41,7 +41,7 @@ public class ContourPipeline extends OpenCvPipeline {
     // constants
     private final Size KERNEL = new Size(20, 20);
     private final Scalar WHITE = new Scalar(255, 255, 255);
-    private final Scalar CONTOUR_COLOR = new Scalar(0, 255, 255);
+    private final Scalar CONTOUR_COLOR = new Scalar(255, 255, 255);
     private final Scalar CONTOUR_CENTER_COLOUR = new Scalar(255,0,255);
     private final Scalar UPPER_HSV = new Scalar(30, 255, 255);
     private final Scalar LOWER_HSV = new Scalar(10, 130, 130);
@@ -109,7 +109,7 @@ public class ContourPipeline extends OpenCvPipeline {
         // drawing the center x coordinate for testing
         Imgproc.drawMarker(draw, new Point(CameraSubsystem.CENTER_X, CameraSubsystem.CENTER_Y), WHITE);
 
-        draw.copyTo(output);
+        input.copyTo(output);
 
         // deallocating matrix memory to prevent memory leaks
         blur.release();

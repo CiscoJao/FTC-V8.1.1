@@ -16,6 +16,7 @@ public class MecanumDriveSubsystem {
     private PIDController xPID;
     private PIDController yPID;
     private PIDController thetaPID;
+    private PIDController cameraPID;
 
     public MecanumDriveSubsystem(HardwareMap hardwareMap) {
         initialize(hardwareMap);
@@ -43,19 +44,20 @@ public class MecanumDriveSubsystem {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        xPID = new PIDController(0.02, 0.00, 0.002);
-        yPID = new PIDController(0, 0, 0);
-        thetaPID = new PIDController(0, 0, 0);
+        xPID = new PIDController(0.03, 0, 0);
+        yPID = new PIDController(0.03, 0, 0);
+        thetaPID = new PIDController(1, 0, 0);
+        cameraPID = new PIDController(0.005, 0, 0);
     }
 
-    private void turnOnInternalPID() {
+    public void turnOnInternalPID() {
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    private void turnOffInternalPID() {
+    public void turnOffInternalPID() {
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -98,7 +100,6 @@ public class MecanumDriveSubsystem {
 
     // general move method that moves the robot relative to the field
     public void fieldOrientedMove(double x, double y, double z, double theta) {
-        turnOnInternalPID();
 
         // translate the field relative movement (joystick) into the robot relative movement
         double newX = x * Math.cos(theta) + y * Math.sin(theta);
@@ -125,15 +126,33 @@ public class MecanumDriveSubsystem {
         backLeft.setPower(backLeftPow * SCALE);
     }
 
+    // this method is designed to be used in an autonomous (linear) opmode
     public void moveToGlobalPosition(double targetX, double targetY, double targetTheta) {
-        turnOffInternalPID();
+        // stop moving if within 5 ticks or 0.2 radians from the position
+        while (Math.abs(targetX - odo.getXPos()) > 5
+                || Math.abs(targetY - odo.getYPos()) > 5
+                || Math.abs(targetTheta - odo.getHeading()) > 0.1) {
 
-        // field oriented drive axes are offset by 90 degrees (joystick x-axis controls robot y-axis)
-        fieldOrientedMove(
-                0,
-                xPID.PIDOutput(odo.getXPos(), targetX),
-                0,
-                odo.getHeading()
-        );
+            // field oriented drive axes are offset by 90 degrees (joystick x-axis controls robot y-axis)
+            // in hindsight this should be accounted for before designing the code
+            // for some reason y-axis and theta are backwards, probably bad design...
+            fieldOrientedMove(
+                    -yPID.PIDOutput(odo.getYPos(), targetY),
+                    xPID.PIDOutput(odo.getXPos(), targetX),
+                    -thetaPID.PIDOutput(odo.getHeading(), targetTheta),
+                    odo.getHeading());
+        }
+        stop();
+    }
+
+    // this method is designed to be used in an autonomous (linear) opmode
+    public void turnToPole(CameraSubsystem camera) {
+        while(Math.abs(camera.getPipeline().largestContourCenter().x - CameraSubsystem.CENTER_X) > 10) {
+            fieldOrientedMove(0, 0,
+                    cameraPID.PIDOutput(CameraSubsystem.CENTER_X, camera.getPipeline().largestContourCenter().x),
+                    odo.getHeading()
+            );
+        }
+        stop();
     }
 }

@@ -33,6 +33,7 @@ public class TurretSubsystem {
     public void followPID(int current, int target) {
         turret.setPower(followPID.PIDOutput(current, target));
     }
+
     public void stop() {
         turret.setPower(0);
     }
