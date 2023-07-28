@@ -17,6 +17,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+/*
+This OpMode consist of moving the robot autonomously and having it choose the largest yellow object
+in its field of view. It will turn to the largest one, then approach it slowly until it senses
+it is close enough.
+
+Uses the camera, contour pipeline, object detection algorithm. Uses odometry. Uses PID for movement.
+ */
+
 @Autonomous(name="Pole Detection Auto Test")
 public class PoleDetectionAuto extends LinearOpMode {
 
@@ -52,12 +60,30 @@ public class PoleDetectionAuto extends LinearOpMode {
             CompletableFuture.runAsync(this::updateTelemetry, executor);
         }
 
-        drive.moveToGlobalPosition(90, 0, 0);
-        sleep(2000);
-        drive.turnToPole(camera);
+        sleep(1000);
+        drive.moveTowardsLargestObject(camera, sensor);
+        sleep(1000);
+/*
+        // move forward towards the objects
+        drive.moveToGlobalPosition(75, 0, 0);
         sleep(2000);
 
-        //while (opModeIsActive() )
+        // turn to the largest object detected
+        drive.turnToLargestObject(camera);
+        sleep(2000);
+
+        // start to approach it slowly
+        drive.move(0, 0.3, 0);
+
+        // interrupt the code until the robot is close enough to the object
+        while (opModeIsActive()) {
+            if (sensor.getDistanceCM() < 20)
+                break;
+        }
+        drive.stop();
+        sleep(1000);
+ */
+
     }
 
     public void updateOdometry() {
@@ -72,7 +98,7 @@ public class PoleDetectionAuto extends LinearOpMode {
             telemetry.addData("Y position (CM)", odo.getYPos());
             telemetry.addData("Heading (RAD)", odo.getHeading());
             telemetry.addData("Pipeline time", camera.getPipeline().getProcessTime());
-            telemetry.addData("DIstance", sensor.getDistanceCM());
+            telemetry.addData("Distance", sensor.getDistanceCM());
             telemetry.update();
         }
     }

@@ -47,7 +47,7 @@ public class MecanumDriveSubsystem {
         xPID = new PIDController(0.03, 0, 0);
         yPID = new PIDController(0.03, 0, 0);
         thetaPID = new PIDController(1, 0, 0);
-        cameraPID = new PIDController(0.005, 0, 0);
+        cameraPID = new PIDController(0.0065, 0, 0); //0.008
     }
 
     public void turnOnInternalPID() {
@@ -135,7 +135,7 @@ public class MecanumDriveSubsystem {
 
             // field oriented drive axes are offset by 90 degrees (joystick x-axis controls robot y-axis)
             // in hindsight this should be accounted for before designing the code
-            // for some reason y-axis and theta are backwards, probably bad design...
+            // for some reason y-axis and theta are backwards, probably bad design...lol
             fieldOrientedMove(
                     -yPID.PIDOutput(odo.getYPos(), targetY),
                     xPID.PIDOutput(odo.getXPos(), targetX),
@@ -146,7 +146,7 @@ public class MecanumDriveSubsystem {
     }
 
     // this method is designed to be used in an autonomous (linear) opmode
-    public void turnToPole(CameraSubsystem camera) {
+    public void turnToLargestObject(CameraSubsystem camera) {
         while(Math.abs(camera.getPipeline().largestContourCenter().x - CameraSubsystem.CENTER_X) > 10) {
             fieldOrientedMove(0, 0,
                     cameraPID.PIDOutput(CameraSubsystem.CENTER_X, camera.getPipeline().largestContourCenter().x),
@@ -154,5 +154,37 @@ public class MecanumDriveSubsystem {
             );
         }
         stop();
+    }
+
+    // this method is under heavy testing and tuning and is very inconsistent
+    // attempt to move towards the largest detected object
+    public void moveTowardsLargestObject(CameraSubsystem camera, SensorSubsystem sensor) {
+        while (Math.abs(camera.getPipeline().largestContourCenter().x - CameraSubsystem.CENTER_X) > 10
+                || sensor.getDistanceCM() > 20) {
+            fieldOrientedMove(
+                    cameraPID.PIDOutput(CameraSubsystem.CENTER_X, camera.getPipeline().largestContourCenter().x),
+                    0.3,//0.3
+                    0,
+                    odo.getHeading()
+            );
+        }
+        stop();
+    }
+
+    //private double frontRightPow, frontLeftPow, backRightPow, backLeftPow;
+    public double getFrontRightPow() {
+        return frontRightPow;
+    }
+
+    public double getFrontLeftPow() {
+        return frontLeftPow;
+    }
+
+    public double getBackRightPow() {
+        return backRightPow;
+    }
+
+    public double getBackLeftPow() {
+        return backLeftPow;
     }
 }

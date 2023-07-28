@@ -83,17 +83,3 @@ public class PoleDetectionTest extends LinearOpMode {
         }
     }
 }
-
-/*
-
-if (power > 0.5) {
-    if ((raining && no umbrella) || (dark && power < 0.75)) {
-        stay inside
-    } else {
-        go outside
-    }
-} else {
-    stay inside
-}
-
- */

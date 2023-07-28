@@ -24,6 +24,7 @@ public class OdometryTest extends ThreadOpMode {
         odo = new OdometrySubsystem(hardwareMap);
         imu = new IMUSubsystem(hardwareMap);
 
+        drive.turnOnInternalPID();
         odo.reset();
         imu.resetHeading();
 
@@ -45,7 +46,7 @@ public class OdometryTest extends ThreadOpMode {
         //drive.move(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
         drive.fieldOrientedMove(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, imu.getHeadingRAD());
 
-        telemetry.addLine("Odometry data");
+        telemetry.addLine("Odometry Data");
         telemetry.addData("X position", odo.getXPos());
         telemetry.addData("Y position", odo.getYPos());
         telemetry.addData("Heading", odo.getHeading() / Math.PI);
@@ -56,6 +57,12 @@ public class OdometryTest extends ThreadOpMode {
         telemetry.addLine("IMU Data");
         telemetry.addData("Heading DEG", imu.getHeadingDEG());
         telemetry.addData("Heading RAD", imu.getHeadingRAD() / Math.PI);
+        telemetry.addLine();
+        telemetry.addLine("Motor Data");
+        telemetry.addData("front left", drive.getFrontLeftPow());
+        telemetry.addData("front right", drive.getFrontRightPow());
+        telemetry.addData("back left", drive.getBackLeftPow());
+        telemetry.addData("back right", drive.getBackRightPow());
         telemetry.update();
     }
 }
