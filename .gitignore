@@ -90,3 +90,4 @@ lint/tmp/
 /TeamCode/src/main/java/org/firstinspires/ftc/teamcode/subsystems_legacy/
 /TeamCode/src/main/java/org/firstinspires/ftc/teamcode/OpModes_legacy/
 **/.DS_ Store
+/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/curriculum/
