@@ -16,8 +16,6 @@ The algorithm is frequently used with blurred images to remove unwanted noise.
 NOTE: Edge detection is NOT the same as finding contours. Contours are recognized as individual shapes and
 have geometric properties that OpenCV works with. Edges are merely detecting contrast gradients in images
 and have no recognizable geometric significance.
-
-Created by Francisco Jao
  */
 
 public class EdgesPipeline extends OpenCvPipeline {

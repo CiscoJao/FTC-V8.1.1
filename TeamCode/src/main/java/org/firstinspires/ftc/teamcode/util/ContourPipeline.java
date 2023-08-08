@@ -29,8 +29,6 @@ Additionally, the pipeline also finds the areas and their center of masses of th
 yellow shapes.
 Once this information is found, the pipeline regularly updates which contour it thinks is the largest,
 in other words, which pole is deemed as the "closest"
-
-Created by Francisco Jao
  */
 public class ContourPipeline extends OpenCvPipeline {
 

@@ -13,8 +13,6 @@ import org.openftc.easyopencv.OpenCvPipeline;
 /*
 AVERAGE PROCESSING TIME:
 This pipeline is designed to filter out the yellow pole and replace the background with black
-Created by Francisco Jao
-Based on the pipeline made by Shiv
  */
 public class YellowPipeline extends OpenCvPipeline {
 
