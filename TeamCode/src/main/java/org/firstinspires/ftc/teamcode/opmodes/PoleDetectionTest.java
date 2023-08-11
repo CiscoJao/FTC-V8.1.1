@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IMUSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
-import org.firstinspires.ftc.teamcode.util.ContourPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,7 @@ public class PoleDetectionTest extends LinearOpMode {
     private MecanumDriveSubsystem drive;
     private SensorSubsystem sensor;
     private IMUSubsystem imu;
+    private LEDSubsystem led;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -31,6 +32,7 @@ public class PoleDetectionTest extends LinearOpMode {
         drive = new MecanumDriveSubsystem(hardwareMap);
         sensor = new SensorSubsystem(hardwareMap);
         imu = new IMUSubsystem(hardwareMap);
+        led = new LEDSubsystem(hardwareMap);
 
         // outputting values and camera stream to FTCDashboard for debugging
         FtcDashboard.getInstance().startCameraStream(camera.camera, 30);
@@ -73,10 +75,19 @@ public class PoleDetectionTest extends LinearOpMode {
 
                 // point camera towards the detected pole
                 turret.followPID(CameraSubsystem.CENTER_X, (int)Math.round(camera.getPipeline().largestContourCenter().x));
-
             } else {
                 telemetry.addLine("No contours detected");
                 turret.stop();
+            }
+
+            // LED indicator if the turret is centered on a pole (with tolerance of 20 pixels)
+            if (Math.abs(CameraSubsystem.CENTER_X - (int) Math.round(camera.getPipeline().largestContourCenter().x)) < 20
+                    && camera.getPipeline().poleDetected()) {
+                led.greenLight();
+                telemetry.addLine("Green light!");
+            } else {
+                led.redLight();
+                telemetry.addLine("Red light!");
             }
 
             telemetry.update();

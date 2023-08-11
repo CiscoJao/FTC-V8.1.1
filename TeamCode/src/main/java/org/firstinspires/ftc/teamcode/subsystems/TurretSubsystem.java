@@ -16,7 +16,7 @@ public class TurretSubsystem {
     public TurretSubsystem(HardwareMap hardwareMap) {
         turret = hardwareMap.get(DcMotor.class, "turret");
 
-        turret.setDirection(DcMotorSimple.Direction.FORWARD);
+        turret.setDirection(DcMotorSimple.Direction.REVERSE);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // disables the built in PID controller in the motor
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
